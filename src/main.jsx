@@ -17,105 +17,128 @@ const asset = (path) => `${import.meta.env.BASE_URL}${path}`;
 
 const weddingConfig = {
   coupleNames: "Amrit & Bidhata",
-  shortNames: "A + B",
+  coupleFirst: "Amrit",
+  coupleSecond: "Bidhata",
+  shortNames: "A & B",
   engagementDate: "2026-09-06T18:00:00-05:00",
+  engagementDateLabel: "September 6, 2026",
+  engagementDay: "06",
+  engagementMonth: "Sept",
+  engagementYear: "2026",
+  engagementWeekday: "Sunday",
+  engagementTimeLabel: "6:00 PM",
   weddingDate: "",
-  engagementVenue: "Engagement celebration venue",
+  engagementVenue: "Engagement celebration · venue to be announced",
   weddingVenue: "Wedding venue to be announced",
   heroImage: asset("assets/couple/pond-kiss.jpg"),
   inviteImage: asset("assets/couple/garden-walk.jpg"),
-  storyImage: asset("assets/couple/dc-chapter-two.jpg"),
-  contactEmail: "your-email@example.com",
+  finalImage: asset("assets/couple/pond-kiss.jpg"),
+  contactEmail: "hello@amritandbidhata.com",
   rsvpEndpoint: "",
   storyCards: [
     {
-      date: "Feb 13, 2026 · Burleson County, Texas",
-      title: "Golden-hour smiles",
+      chapter: "Chapter One",
+      date: "February · Burleson County, Texas",
+      title: "Where the warmth began",
       image: asset("assets/couple/texas-chapter.jpg"),
       text:
-        "A warm little chapter, saved in the metadata as Texas and remembered by the way the light found you both.",
+        "A late-afternoon smile in Texas — the kind of soft, ordinary moment that turned out to be the beginning of every chapter after it.",
     },
     {
-      date: "Mar 21, 2026 · Washington, D.C.",
-      title: "Spring in the city",
+      chapter: "Chapter Two",
+      date: "March · Washington, D.C.",
+      title: "Blue skies and bright laughter",
       image: asset("assets/couple/dc-chapter-one.jpg"),
       text:
-        "Blue sky, bright laughter, and a D.C. afternoon that already looks like a favorite page in the album.",
+        "The capital under a wide spring sky. Two people laughing into the sun, already writing the kind of story they hadn't quite named yet.",
     },
     {
-      date: "Mar 21, 2026 · Washington, D.C.",
-      title: "Blossoms around us",
+      chapter: "Chapter Three",
+      date: "March · The Tidal Basin",
+      title: "Beneath the blossoms",
       image: asset("assets/couple/dc-chapter-two.jpg"),
       text:
-        "The flowers did what flowers do best: made the whole day feel softer, brighter, and a little unreal.",
+        "Cherry blossoms fell like soft confetti. A photograph that needed no filter, because the world had already turned pink for them.",
     },
     {
-      date: "Apr 3, 2026 · Garden pond",
+      chapter: "Chapter Four",
+      date: "April · The garden pond",
       title: "A quiet pause",
       image: asset("assets/couple/pond-kiss.jpg"),
       text:
-        "One still moment by the water, framed by spring trees and the kind of calm that feels like home.",
+        "Still water, still hearts, one quiet kiss by the pond — the chapter where the future began to feel close enough to touch.",
     },
     {
-      date: "May 24, 2026 · Rose garden",
+      chapter: "Chapter Five",
+      date: "May · The rose walk",
       title: "Walking forward",
       image: asset("assets/couple/garden-walk.jpg"),
       text:
-        "Hands linked, flowers beside you, and the story already moving toward a day everyone will gather for.",
+        "Hand in hand through the roses, the path opened toward a date everyone would gather for. Forever, but easier than it sounds.",
     },
   ],
   timeline: [
     {
-      year: "Feb 13, 2026",
+      year: "Feb 2026",
       title: "Texas warmth",
-      text: "A golden selfie from Burleson County, Texas, begins this photo trail.",
+      text: "A golden selfie from Burleson County opens the album — the beginning of an unforgettable year.",
     },
     {
-      year: "Mar 21, 2026",
+      year: "Mar 2026",
       title: "D.C. spring",
-      text: "Washington, D.C. gave you blue skies, monuments, and blossoms.",
+      text: "Washington welcomes them with monuments, magnolias, and the kind of light that asks to be remembered.",
     },
     {
-      year: "Apr 3, 2026",
+      year: "Apr 2026",
       title: "By the pond",
-      text: "A garden pause became the hero image of this little love story.",
+      text: "A quiet garden pause becomes the hero photo of this little love story.",
+    },
+    {
+      year: "May 2026",
+      title: "Through the roses",
+      text: "A long walk through the rose garden — the moment forever stopped feeling far away.",
     },
     {
       year: "Sep 6, 2026",
-      title: "Engagement",
-      text: "The celebration begins with family, blessings, and joy.",
-    },
-    {
-      year: "Soon",
-      title: "Wedding",
-      text: "Set the wedding date in the config when it is ready.",
+      title: "Engagement day",
+      text: "Family, blessings, and the first official word of forever, said out loud.",
     },
   ],
   moments: [
     {
       image: asset("assets/couple/pond-kiss.jpg"),
-      title: "Garden Stillness",
-      place: "April 2026",
+      title: "Garden stillness",
+      place: "April · Garden pond",
     },
     {
       image: asset("assets/couple/garden-walk.jpg"),
-      title: "Rose Walk",
-      place: "May 2026",
+      title: "Rose walk",
+      place: "May · Rose garden",
     },
     {
       image: asset("assets/couple/dc-chapter-two.jpg"),
-      title: "Blossom Day",
-      place: "Washington, D.C.",
+      title: "Blossom day",
+      place: "March · Washington, D.C.",
     },
     {
       image: asset("assets/couple/potomac-chapter.jpg"),
-      title: "Temple Morning",
+      title: "Temple morning",
       place: "Potomac, Maryland",
     },
     {
+      image: asset("assets/couple/dc-chapter-one.jpg"),
+      title: "Bright skies",
+      place: "March · D.C.",
+    },
+    {
+      image: asset("assets/couple/texas-chapter.jpg"),
+      title: "Texas warmth",
+      place: "February · Burleson County",
+    },
+    {
       image: asset("assets/couple/bethesda-chapter.jpg"),
-      title: "Everyday Us",
-      place: "East Bethesda, Maryland",
+      title: "Everyday us",
+      place: "Everyday · Bethesda, Maryland",
     },
   ],
 };
@@ -125,6 +148,10 @@ const sampleGuests = [
   { id: "meera-shah", name: "Meera Shah", partySize: 4, group: "Friends" },
   { id: "rao-family", name: "The Rao Family", partySize: 5, group: "Family" },
 ];
+
+/* ============================================================
+   Helpers
+   ============================================================ */
 
 function encodeInvite(guest) {
   const payload = JSON.stringify({
@@ -146,7 +173,6 @@ function encodeInvite(guest) {
 
 function decodeInvite(token) {
   if (!token) return null;
-
   try {
     const normalized = token.replace(/-/g, "+").replace(/_/g, "/");
     const padded = normalized.padEnd(
@@ -167,7 +193,6 @@ function getInviteToken() {
 function getBasePath() {
   const path = window.location.pathname.replace(/\/$/, "");
   const inviteIndex = path.lastIndexOf("/invite");
-
   if (inviteIndex >= 0) return path.slice(0, inviteIndex);
   return path === "" ? "" : path;
 }
@@ -217,6 +242,10 @@ function useCountdown() {
   }, [now]);
 }
 
+/* ============================================================
+   App
+   ============================================================ */
+
 function App() {
   const isInvite = window.location.pathname.includes("/invite");
   return isInvite ? <InvitePage /> : <HomePage />;
@@ -224,7 +253,19 @@ function App() {
 
 function HomePage() {
   const countdown = useCountdown();
+  const [doorOpen, setDoorOpen] = useState(false);
   const [activeCard, setActiveCard] = useState(0);
+
+  useEffect(() => {
+    if (!doorOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      const timer = window.setTimeout(() => {
+        document.body.style.overflow = "";
+      }, 1700);
+      return () => window.clearTimeout(timer);
+    }
+  }, [doorOpen]);
 
   const nextCard = () =>
     setActiveCard((index) => (index + 1) % weddingConfig.storyCards.length);
@@ -236,48 +277,118 @@ function HomePage() {
     );
 
   return (
-    <main>
-      <Hero countdown={countdown} />
-      <StoryBook
-        activeCard={activeCard}
-        nextCard={nextCard}
-        previousCard={previousCard}
-      />
-      <Timeline />
-      <MomentsGallery />
-      <InvitationStudio />
-      <FinalSection countdown={countdown} />
-    </main>
+    <>
+      <DoorOverlay open={doorOpen} onOpen={() => setDoorOpen(true)} />
+      <main>
+        <SiteNav />
+        <Hero countdown={countdown} />
+        <StoryBook
+          activeCard={activeCard}
+          setActiveCard={setActiveCard}
+          nextCard={nextCard}
+          previousCard={previousCard}
+        />
+        <Timeline />
+        <MomentsGallery />
+        <InvitationStudio />
+        <FinalSection countdown={countdown} />
+        <Footer />
+      </main>
+    </>
   );
 }
+
+/* ============================================================
+   Door overlay
+   ============================================================ */
+
+function DoorOverlay({ open, onOpen }) {
+  return (
+    <div className={`door-overlay${open ? " open" : ""}`} aria-hidden={open}>
+      <div className="door-frame">
+        <div className="door-arch">
+          <div className="door-panel left" />
+          <div className="door-panel right" />
+          <div className="door-light" />
+          <div className="door-content">
+            <p className="door-mark">An Invitation to Forever</p>
+            <h1 className="door-title">
+              Wedding
+              <em>Invitation</em>
+            </h1>
+            <p className="door-couple">Amrit &amp; Bidhata</p>
+            <div className="door-date">
+              <strong>{weddingConfig.engagementDay}</strong>
+              <span>
+                {weddingConfig.engagementMonth} {weddingConfig.engagementYear}
+                {" · "}
+                {weddingConfig.engagementWeekday}
+              </span>
+            </div>
+          </div>
+        </div>
+        <button className="door-cta" onClick={onOpen} type="button">
+          Open Invitation
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   Nav
+   ============================================================ */
+
+function SiteNav() {
+  return (
+    <nav className="nav" aria-label="Main navigation">
+      <a href="#home" className="brand">
+        <span>Amrit</span>
+        <span className="brand-heart">
+          <Heart size={14} fill="currentColor" aria-hidden="true" />
+        </span>
+        <span>Bidhata</span>
+      </a>
+      <div className="nav-links">
+        <a href="#story">Story</a>
+        <a href="#timeline">Journey</a>
+        <a href="#moments">Moments</a>
+        <a href="#invites">RSVP</a>
+      </div>
+    </nav>
+  );
+}
+
+/* ============================================================
+   Hero
+   ============================================================ */
 
 function Hero({ countdown }) {
   return (
     <section className="hero" id="home">
-      <nav className="nav" aria-label="Main navigation">
-        <a href="#home" className="brand">
-          <Heart size={18} aria-hidden="true" />
-          <span>{weddingConfig.shortNames}</span>
-        </a>
-        <div className="nav-links">
-          <a href="#story">Story</a>
-          <a href="#timeline">Timeline</a>
-          <a href="#moments">Moments</a>
-          <a href="#invites">Invites</a>
-        </div>
-      </nav>
+      <div className="hero-grid">
+        <div className="hero-card">
+          <div className="floral floral-top-left" aria-hidden="true" />
+          <div className="floral floral-bottom-right" aria-hidden="true" />
 
-      <div className="hero-frame">
-        <img src={weddingConfig.heroImage} alt="" />
-        <div className="hero-copy">
-          <p className="eyebrow">We are getting engaged</p>
-          <h1>{weddingConfig.coupleNames}</h1>
-          <p className="hero-date">
+          <p className="eyebrow">Save the Date</p>
+          <h1 className="hero-couple">
+            {weddingConfig.coupleFirst}
+            <br />
+            <em>&amp;</em> {weddingConfig.coupleSecond}
+          </h1>
+          <div className="hero-line">
             <CalendarDays size={18} aria-hidden="true" />
-            September 6, 2026
-          </p>
+            <span>{weddingConfig.engagementDateLabel}</span>
+            <span className="dot" />
+            <span>{weddingConfig.engagementTimeLabel}</span>
+          </div>
           <Countdown countdown={countdown} />
         </div>
+
+        <figure className="hero-photo-frame">
+          <img src={weddingConfig.heroImage} alt="" />
+        </figure>
       </div>
     </section>
   );
@@ -293,7 +404,9 @@ function Countdown({ countdown }) {
 
   return (
     <div className="countdown" aria-label={`${countdown.targetLabel} countdown`}>
-      <span className="countdown-label">{countdown.targetLabel} in</span>
+      <p className="eyebrow" style={{ marginBottom: 14 }}>
+        Counting down to forever
+      </p>
       <div className="countdown-grid">
         {units.map(([label, value]) => (
           <div className="count-box" key={label}>
@@ -306,71 +419,99 @@ function Countdown({ countdown }) {
   );
 }
 
-function StoryBook({ activeCard, nextCard, previousCard }) {
+/* ============================================================
+   Story Book
+   ============================================================ */
+
+function StoryBook({ activeCard, setActiveCard, nextCard, previousCard }) {
   const card = weddingConfig.storyCards[activeCard];
 
   return (
     <section className="section story-section" id="story">
       <div className="section-heading">
-        <p className="eyebrow">Our story</p>
+        <span className="script">Our Story</span>
         <h2>A little book of us</h2>
+        <p>
+          Five chapters from one unforgettable year — the moments that turned a
+          gentle hello into a save-the-date.
+        </p>
       </div>
 
       <div className="storybook">
-        <button className="icon-button" onClick={previousCard} aria-label="Previous story">
+        <button
+          className="icon-button"
+          onClick={previousCard}
+          aria-label="Previous chapter"
+        >
           <ChevronLeft size={22} aria-hidden="true" />
         </button>
+
         <article className="book-page" key={card.title}>
           <div className="page-image">
-            <img src={card.image} alt="" />
+            <img src={card.image} alt={card.title} />
           </div>
           <div className="page-copy">
-            <span>{card.date}</span>
+            <span className="chapter">{card.chapter}</span>
             <h3>{card.title}</h3>
+            <p className="date">{card.date}</p>
             <p>{card.text}</p>
           </div>
         </article>
-        <button className="icon-button" onClick={nextCard} aria-label="Next story">
+
+        <button
+          className="icon-button"
+          onClick={nextCard}
+          aria-label="Next chapter"
+        >
           <ChevronRight size={22} aria-hidden="true" />
         </button>
+
+        <div className="storybook-dots" role="tablist" aria-label="Chapters">
+          {weddingConfig.storyCards.map((c, index) => (
+            <button
+              key={c.title}
+              onClick={() => setActiveCard(index)}
+              className={index === activeCard ? "is-active" : ""}
+              aria-label={`Go to ${c.title}`}
+              aria-selected={index === activeCard}
+              role="tab"
+              type="button"
+            />
+          ))}
+        </div>
       </div>
     </section>
   );
 }
 
+/* ============================================================
+   Timeline
+   ============================================================ */
+
 function Timeline() {
   return (
     <section className="section timeline-section" id="timeline">
       <div className="section-heading">
-        <p className="eyebrow">Milestones</p>
+        <span className="script">The Journey</span>
         <h2>The path to forever</h2>
+        <p>
+          Every chapter, every city, every quiet step that brought us here —
+          waiting for the family and friends who made it possible.
+        </p>
       </div>
+
       <div className="timeline">
-        <svg
-          className="timeline-path"
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-        >
-          <path
-            className="desktop-route"
-            pathLength="1"
-            d="M50 0 C10 11 10 22 50 32 C90 42 90 54 50 64 C10 74 10 88 50 100"
-          />
-          <path
-            className="mobile-route"
-            pathLength="1"
-            d="M50 0 C32 14 68 26 50 40 C32 54 68 68 50 82 C40 90 46 96 50 100"
-          />
-        </svg>
         {weddingConfig.timeline.map((item, index) => (
           <article className="timeline-item" key={item.title}>
-            <span className="timeline-dot">{index + 1}</span>
-            <div>
+            <div className="timeline-card">
               <small>{item.year}</small>
               <h3>{item.title}</h3>
               <p>{item.text}</p>
             </div>
+            <span className="timeline-dot" aria-hidden="true">
+              {String(index + 1).padStart(2, "0")}
+            </span>
+            <div className="timeline-spacer" />
           </article>
         ))}
       </div>
@@ -378,17 +519,29 @@ function Timeline() {
   );
 }
 
+/* ============================================================
+   Moments Gallery
+   ============================================================ */
+
 function MomentsGallery() {
   return (
     <section className="section moments-section" id="moments">
       <div className="section-heading">
-        <p className="eyebrow">Captured moments</p>
-        <h2>Real frames, softly moving</h2>
+        <span className="script">Captured Moments</span>
+        <h2>Real frames, softly held</h2>
+        <p>
+          A small album of the in-between — sunlight, blossoms, quiet streets,
+          and the people who made each frame possible.
+        </p>
       </div>
+
       <div className="moments-grid">
         {weddingConfig.moments.map((moment, index) => (
-          <figure className={`moment-tile moment-${index + 1}`} key={moment.title}>
-            <img src={moment.image} alt={`${moment.title} - ${moment.place}`} />
+          <figure
+            className={`moment-tile moment-${index + 1}`}
+            key={moment.title}
+          >
+            <img src={moment.image} alt={`${moment.title} — ${moment.place}`} />
             <figcaption>
               <strong>{moment.title}</strong>
               <span>{moment.place}</span>
@@ -399,6 +552,10 @@ function MomentsGallery() {
     </section>
   );
 }
+
+/* ============================================================
+   Invitation Studio
+   ============================================================ */
 
 function InvitationStudio() {
   const [guests, setGuests] = useState(sampleGuests);
@@ -462,14 +619,19 @@ function InvitationStudio() {
   return (
     <section className="section invite-studio" id="invites">
       <div className="section-heading">
-        <p className="eyebrow">Invitation links</p>
+        <span className="script">Invitations</span>
         <h2>Make each RSVP personal</h2>
+        <p>
+          Generate a private link for every family or friend. Each invite opens
+          to a beautiful page with their name and their own RSVP form.
+        </p>
       </div>
 
       <div className="studio-grid">
         <form className="guest-form" onSubmit={addGuest}>
+          <h3>Add a guest</h3>
           <label>
-            Guest or family name
+            Name
             <input
               value={guestForm.name}
               onChange={(event) =>
@@ -509,7 +671,7 @@ function InvitationStudio() {
             />
           </label>
           <button className="primary-button" type="submit">
-            <Sparkles size={18} aria-hidden="true" />
+            <Sparkles size={16} aria-hidden="true" />
             Generate link
           </button>
         </form>
@@ -532,9 +694,10 @@ function InvitationStudio() {
               <button
                 className="icon-button compact"
                 onClick={() => copyInvite(guest)}
-                aria-label={`Copy invite for ${guest.name}`}
+                aria-label={`Copy invite link for ${guest.name}`}
+                type="button"
               >
-                <Copy size={18} aria-hidden="true" />
+                <Copy size={16} aria-hidden="true" />
               </button>
             </div>
           ))}
@@ -542,9 +705,12 @@ function InvitationStudio() {
       </div>
 
       <div className="response-bar">
-        <span>{responses.length} RSVP response{responses.length === 1 ? "" : "s"} on this device</span>
+        <span>
+          {responses.length} RSVP response{responses.length === 1 ? "" : "s"} on
+          this device
+        </span>
         <button className="secondary-button" onClick={downloadCsv} type="button">
-          <Download size={18} aria-hidden="true" />
+          <Download size={16} aria-hidden="true" />
           Export CSV
         </button>
       </div>
@@ -552,23 +718,42 @@ function InvitationStudio() {
   );
 }
 
+/* ============================================================
+   Final Section + Footer
+   ============================================================ */
+
 function FinalSection({ countdown }) {
   return (
     <section
       className="final-section"
-      style={{ "--final-image": `url("${asset("assets/couple/pond-kiss.jpg")}")` }}
+      style={{ "--final-image": `url("${weddingConfig.finalImage}")` }}
     >
       <div>
-        <p className="eyebrow">With love</p>
-        <h2>{countdown.days} days until the celebration begins</h2>
+        <p className="eyebrow">With love and gratitude</p>
+        <h2>
+          {countdown.days} days until our celebration begins.
+        </h2>
       </div>
       <a className="primary-button" href="#invites">
-        <Mail size={18} aria-hidden="true" />
+        <Mail size={16} aria-hidden="true" />
         Create invites
       </a>
     </section>
   );
 }
+
+function Footer() {
+  return (
+    <footer className="footer">
+      <span className="script">Amrit &amp; Bidhata</span>
+      <p>September 6, 2026 · Made with love</p>
+    </footer>
+  );
+}
+
+/* ============================================================
+   Invite page
+   ============================================================ */
 
 function InvitePage() {
   const guest = decodeInvite(getInviteToken()) || {
@@ -618,17 +803,18 @@ function InvitePage() {
         <div className="phone-card">
           <img src={weddingConfig.inviteImage} alt="" />
           <div className="invite-overlay">
-            <p>Wedding Invitation</p>
+            <span className="stamp">Wedding Invitation</span>
             <h1>{weddingConfig.coupleNames}</h1>
-            <span>For {guest.name}</span>
+            <span className="for">For {guest.name}</span>
           </div>
         </div>
 
         <form className="rsvp-card" onSubmit={submitRsvp}>
-          <p className="eyebrow">Personal invite</p>
+          <span className="script">A note for you</span>
           <h2>{guest.name}</h2>
           <p className="invite-note">
-            You are invited to celebrate Amrit and Bidhata's engagement on September 6, 2026.
+            With joy and family blessings, you are invited to celebrate Amrit
+            and Bidhata&rsquo;s engagement on September 6, 2026.
           </p>
           <div className="venue-line">
             <MapPin size={17} aria-hidden="true" />
@@ -650,7 +836,7 @@ function InvitePage() {
                   }))
                 }
               />
-              Yes
+              Joyfully accept
             </label>
             <label>
               <input
@@ -665,7 +851,7 @@ function InvitePage() {
                   }))
                 }
               />
-              No
+              Regretfully decline
             </label>
           </fieldset>
 
@@ -700,7 +886,7 @@ function InvitePage() {
             </select>
           </label>
           <label>
-            Message
+            A note for the couple
             <textarea
               value={form.message}
               onChange={(event) =>
@@ -713,11 +899,13 @@ function InvitePage() {
             />
           </label>
           <button className="primary-button" type="submit">
-            <Heart size={18} aria-hidden="true" />
+            <Heart size={16} aria-hidden="true" />
             Send RSVP
           </button>
           {submitted ? (
-            <p className="success-message">RSVP saved. Thank you for replying.</p>
+            <p className="success-message">
+              RSVP saved — thank you for replying.
+            </p>
           ) : null}
         </form>
       </section>
