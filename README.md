@@ -1,6 +1,6 @@
-# Wedding Website
+# Engagement Party Website
 
-Mobile-friendly wedding homepage plus personalized invitation links and RSVP forms.
+Mobile-friendly engagement party homepage plus personalized invitation links and RSVP forms.
 
 ## Run locally
 
@@ -13,21 +13,35 @@ Open `http://127.0.0.1:5173/`.
 
 ## Customize
 
-Edit `weddingConfig` near the top of `src/main.jsx`:
+Edit `engagementConfig` near the top of `src/main.jsx`:
 
 - `coupleNames` and `shortNames`
 - `engagementDate`, currently set to `2026-09-06T18:00:00-05:00`
-- `weddingDate`, left blank for now
-- venues, contact email, story cards, and timeline entries
+- `nextEventDate`, left blank for now if you later want the countdown to move to another celebration
+- venues, contact email, moments, and invitation image paths
 - hero/invite/story image paths
 
-When `weddingDate` is blank, the countdown targets the engagement. After the engagement passes, it will keep targeting the engagement unless a wedding date is added.
+When `nextEventDate` is blank, the countdown targets the engagement. After the engagement passes, it will keep targeting the engagement unless another celebration date is added.
 
 ## Invitation Links
 
-Use the "Invitation links" section on the homepage to add a guest or family and copy their unique invite URL. The URL stores guest name, party size, group, and ID in the link token so the invitation page can personalize itself.
+The invitation manager is intentionally omitted from the public homepage. Open:
 
-RSVP responses are currently saved in the browser and can be exported as CSV from the homepage. For real guest collection after deployment, add an API URL to `rsvpEndpoint` in `weddingConfig`; the app will POST each RSVP there as JSON.
+```text
+https://YOUR-DOMAIN/admin-invitations
+```
+
+For GitHub Pages, that is:
+
+```text
+https://YOUR-USERNAME.github.io/YOUR-REPOSITORY-NAME/admin-invitations
+```
+
+This is a hidden URL, not authentication. Anyone who learns the URL can open it because GitHub Pages is a static host.
+
+Use the manager to add a guest or family and copy their unique invite URL. The URL stores guest name, suggested party size, group, and ID in the link token so the invitation page can personalize itself.
+
+RSVP responses are currently saved only in the browser where the guest submits them. They do not automatically appear on your device. For real guest collection, add a hosted API/database URL to `rsvpEndpoint` in `engagementConfig`; the app will POST each RSVP there as JSON.
 
 ## Deploy to GitHub Pages
 

@@ -7,7 +7,6 @@ import {
   Copy,
   Download,
   Heart,
-  Mail,
   MapPin,
   Sparkles,
 } from "lucide-react";
@@ -15,21 +14,24 @@ import "./styles.css";
 
 const asset = (path) => `${import.meta.env.BASE_URL}${path}`;
 
-const weddingConfig = {
+const engagementConfig = {
   coupleNames: "Amrit & Bidhata",
   coupleFirst: "Amrit",
   coupleSecond: "Bidhata",
+  eventName: "Engagement Party",
   shortNames: "A & B",
   engagementDate: "2026-09-06T18:00:00-05:00",
-  engagementDateLabel: "September 6, 2026",
+  engagementDateLabel: "Sep 06 2026",
   engagementDay: "06",
   engagementMonth: "Sept",
   engagementYear: "2026",
   engagementWeekday: "Sunday",
   engagementTimeLabel: "6:00 PM",
-  weddingDate: "",
-  engagementVenue: "Engagement celebration · venue to be announced",
-  weddingVenue: "Wedding venue to be announced",
+  nextEventDate: "",
+  engagementVenue: "The Springs in Katy",
+  engagementAddress: "4999 Buller Rd, Brookshire, TX 77423",
+  engagementMapUrl:
+    "https://www.google.com/maps/search/?api=1&query=The+Springs+in+Katy+4999+Buller+Rd+Brookshire+TX+77423",
   heroImage: asset("assets/couple/pond-kiss.jpg"),
   inviteImage: asset("assets/couple/garden-walk.jpg"),
   finalImage: asset("assets/couple/pond-kiss.jpg"),
@@ -192,8 +194,9 @@ function getInviteToken() {
 
 function getBasePath() {
   const path = window.location.pathname.replace(/\/$/, "");
-  const inviteIndex = path.lastIndexOf("/invite");
-  if (inviteIndex >= 0) return path.slice(0, inviteIndex);
+  const routeNames = ["/invite", "/admin-invitations"];
+  const routeIndex = Math.max(...routeNames.map((route) => path.lastIndexOf(route)));
+  if (routeIndex >= 0) return path.slice(0, routeIndex);
   return path === "" ? "" : path;
 }
 
@@ -203,14 +206,14 @@ function getInvitePath(guest) {
 
 function getStoredResponses() {
   try {
-    return JSON.parse(localStorage.getItem("wedding-rsvps") || "[]");
+    return JSON.parse(localStorage.getItem("engagement-rsvps") || "[]");
   } catch {
     return [];
   }
 }
 
 function setStoredResponses(responses) {
-  localStorage.setItem("wedding-rsvps", JSON.stringify(responses));
+  localStorage.setItem("engagement-rsvps", JSON.stringify(responses));
 }
 
 function useCountdown() {
@@ -222,17 +225,17 @@ function useCountdown() {
   }, []);
 
   return useMemo(() => {
-    const engagement = new Date(weddingConfig.engagementDate);
-    const wedding = weddingConfig.weddingDate
-      ? new Date(weddingConfig.weddingDate)
+    const engagement = new Date(engagementConfig.engagementDate);
+    const nextEvent = engagementConfig.nextEventDate
+      ? new Date(engagementConfig.nextEventDate)
       : null;
     const hasEngagementPassed = now >= engagement;
-    const target = wedding && hasEngagementPassed ? wedding : engagement;
+    const target = nextEvent && hasEngagementPassed ? nextEvent : engagement;
     const total = Math.max(0, target.getTime() - now.getTime());
     const seconds = Math.floor(total / 1000);
 
     return {
-      targetLabel: wedding && hasEngagementPassed ? "Wedding" : "Engagement",
+      targetLabel: nextEvent && hasEngagementPassed ? "Next celebration" : "Engagement",
       days: Math.floor(seconds / 86400),
       hours: Math.floor((seconds % 86400) / 3600),
       minutes: Math.floor((seconds % 3600) / 60),
@@ -248,13 +251,16 @@ function useCountdown() {
 
 function App() {
   const isInvite = window.location.pathname.includes("/invite");
-  return isInvite ? <InvitePage /> : <HomePage />;
+  const isAdmin = window.location.pathname.includes("/admin-invitations");
+
+  if (isInvite) return <InvitePage />;
+  if (isAdmin) return <AdminInvitationsPage />;
+  return <HomePage />;
 }
 
 function HomePage() {
   const countdown = useCountdown();
   const [doorOpen, setDoorOpen] = useState(false);
-  const [activeCard, setActiveCard] = useState(0);
 
   useEffect(() => {
     if (!doorOpen) {
@@ -262,35 +268,22 @@ function HomePage() {
     } else {
       const timer = window.setTimeout(() => {
         document.body.style.overflow = "";
-      }, 1700);
+      }, 2200);
       return () => window.clearTimeout(timer);
     }
   }, [doorOpen]);
 
-  const nextCard = () =>
-    setActiveCard((index) => (index + 1) % weddingConfig.storyCards.length);
-  const previousCard = () =>
-    setActiveCard(
-      (index) =>
-        (index - 1 + weddingConfig.storyCards.length) %
-        weddingConfig.storyCards.length,
-    );
-
   return (
     <>
-      <DoorOverlay open={doorOpen} onOpen={() => setDoorOpen(true)} />
+      <DoorOverlay
+        open={doorOpen}
+        onOpen={() => setDoorOpen(true)}
+        mark="Together with our families"
+      />
       <main>
         <SiteNav />
         <Hero countdown={countdown} />
-        <StoryBook
-          activeCard={activeCard}
-          setActiveCard={setActiveCard}
-          nextCard={nextCard}
-          previousCard={previousCard}
-        />
-        <Timeline />
         <MomentsGallery />
-        <InvitationStudio />
         <FinalSection countdown={countdown} />
         <Footer />
       </main>
@@ -302,7 +295,7 @@ function HomePage() {
    Door overlay
    ============================================================ */
 
-function DoorOverlay({ open, onOpen }) {
+function DoorOverlay({ open, onOpen, mark, recipient }) {
   return (
     <div className={`door-overlay${open ? " open" : ""}`} aria-hidden={open}>
       <div className="door-frame">
@@ -310,20 +303,26 @@ function DoorOverlay({ open, onOpen }) {
           <div className="door-panel left" />
           <div className="door-panel right" />
           <div className="door-light" />
+          <div className="door-ribbon" aria-hidden="true">
+            <span className="ribbon-band ribbon-band-left" />
+            <span className="ribbon-band ribbon-band-right" />
+            <span className="bow-loop bow-loop-left" />
+            <span className="bow-loop bow-loop-right" />
+            <span className="bow-tail bow-tail-left" />
+            <span className="bow-tail bow-tail-right" />
+            <span className="bow-knot" />
+          </div>
           <div className="door-content">
-            <p className="door-mark">An Invitation to Forever</p>
+            <p className="door-mark">{mark || "You are invited"}</p>
             <h1 className="door-title">
-              Wedding
+              Engagement Party
               <em>Invitation</em>
             </h1>
             <p className="door-couple">Amrit &amp; Bidhata</p>
+            {recipient ? <p className="door-recipient">For {recipient}</p> : null}
             <div className="door-date">
-              <strong>{weddingConfig.engagementDay}</strong>
-              <span>
-                {weddingConfig.engagementMonth} {weddingConfig.engagementYear}
-                {" · "}
-                {weddingConfig.engagementWeekday}
-              </span>
+              <strong>{engagementConfig.engagementDateLabel}</strong>
+              <span>{engagementConfig.engagementWeekday}</span>
             </div>
           </div>
         </div>
@@ -350,10 +349,7 @@ function SiteNav() {
         <span>Bidhata</span>
       </a>
       <div className="nav-links">
-        <a href="#story">Story</a>
-        <a href="#timeline">Journey</a>
         <a href="#moments">Moments</a>
-        <a href="#invites">RSVP</a>
       </div>
     </nav>
   );
@@ -373,21 +369,21 @@ function Hero({ countdown }) {
 
           <p className="eyebrow">Save the Date</p>
           <h1 className="hero-couple">
-            {weddingConfig.coupleFirst}
+            {engagementConfig.coupleFirst}
             <br />
-            <em>&amp;</em> {weddingConfig.coupleSecond}
+            <em>&amp;</em> {engagementConfig.coupleSecond}
           </h1>
           <div className="hero-line">
             <CalendarDays size={18} aria-hidden="true" />
-            <span>{weddingConfig.engagementDateLabel}</span>
+            <span>{engagementConfig.engagementDateLabel}</span>
             <span className="dot" />
-            <span>{weddingConfig.engagementTimeLabel}</span>
+            <span>{engagementConfig.engagementTimeLabel}</span>
           </div>
           <Countdown countdown={countdown} />
         </div>
 
         <figure className="hero-photo-frame">
-          <img src={weddingConfig.heroImage} alt="" />
+          <img src={engagementConfig.heroImage} alt="" />
         </figure>
       </div>
     </section>
@@ -420,134 +416,98 @@ function Countdown({ countdown }) {
 }
 
 /* ============================================================
-   Story Book
-   ============================================================ */
-
-function StoryBook({ activeCard, setActiveCard, nextCard, previousCard }) {
-  const card = weddingConfig.storyCards[activeCard];
-
-  return (
-    <section className="section story-section" id="story">
-      <div className="section-heading">
-        <span className="script">Our Story</span>
-        <h2>A little book of us</h2>
-        <p>
-          Five chapters from one unforgettable year — the moments that turned a
-          gentle hello into a save-the-date.
-        </p>
-      </div>
-
-      <div className="storybook">
-        <button
-          className="icon-button"
-          onClick={previousCard}
-          aria-label="Previous chapter"
-        >
-          <ChevronLeft size={22} aria-hidden="true" />
-        </button>
-
-        <article className="book-page" key={card.title}>
-          <div className="page-image">
-            <img src={card.image} alt={card.title} />
-          </div>
-          <div className="page-copy">
-            <span className="chapter">{card.chapter}</span>
-            <h3>{card.title}</h3>
-            <p className="date">{card.date}</p>
-            <p>{card.text}</p>
-          </div>
-        </article>
-
-        <button
-          className="icon-button"
-          onClick={nextCard}
-          aria-label="Next chapter"
-        >
-          <ChevronRight size={22} aria-hidden="true" />
-        </button>
-
-        <div className="storybook-dots" role="tablist" aria-label="Chapters">
-          {weddingConfig.storyCards.map((c, index) => (
-            <button
-              key={c.title}
-              onClick={() => setActiveCard(index)}
-              className={index === activeCard ? "is-active" : ""}
-              aria-label={`Go to ${c.title}`}
-              aria-selected={index === activeCard}
-              role="tab"
-              type="button"
-            />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ============================================================
-   Timeline
-   ============================================================ */
-
-function Timeline() {
-  return (
-    <section className="section timeline-section" id="timeline">
-      <div className="section-heading">
-        <span className="script">The Journey</span>
-        <h2>The path to forever</h2>
-        <p>
-          Every chapter, every city, every quiet step that brought us here —
-          waiting for the family and friends who made it possible.
-        </p>
-      </div>
-
-      <div className="timeline">
-        {weddingConfig.timeline.map((item, index) => (
-          <article className="timeline-item" key={item.title}>
-            <div className="timeline-card">
-              <small>{item.year}</small>
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
-            </div>
-            <span className="timeline-dot" aria-hidden="true">
-              {String(index + 1).padStart(2, "0")}
-            </span>
-            <div className="timeline-spacer" />
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-/* ============================================================
    Moments Gallery
    ============================================================ */
 
 function MomentsGallery() {
+  const [activeMoment, setActiveMoment] = useState(0);
+  const active = engagementConfig.moments[activeMoment];
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setActiveMoment((index) => (index + 1) % engagementConfig.moments.length);
+    }, 4600);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const previousMoment = () =>
+    setActiveMoment(
+      (index) =>
+        (index - 1 + engagementConfig.moments.length) %
+        engagementConfig.moments.length,
+    );
+  const nextMoment = () =>
+    setActiveMoment((index) => (index + 1) % engagementConfig.moments.length);
+
   return (
     <section className="section moments-section" id="moments">
       <div className="section-heading">
         <span className="script">Captured Moments</span>
-        <h2>Real frames, softly held</h2>
+        <h2>Our favorite little frames</h2>
         <p>
-          A small album of the in-between — sunlight, blossoms, quiet streets,
-          and the people who made each frame possible.
+          A living album of the in-between — sunlight, blossoms, quiet streets,
+          and the soft moments that brought us here.
         </p>
       </div>
 
-      <div className="moments-grid">
-        {weddingConfig.moments.map((moment, index) => (
-          <figure
-            className={`moment-tile moment-${index + 1}`}
+      <div className="moments-carousel">
+        <figure className="moment-feature" key={active.title}>
+          <img src={active.image} alt={`${active.title} — ${active.place}`} />
+          <figcaption>
+            <span>{String(activeMoment + 1).padStart(2, "0")}</span>
+            <h3>{active.title}</h3>
+            <p>{active.place}</p>
+          </figcaption>
+        </figure>
+
+        <div className="moment-controls" aria-label="Captured moment controls">
+          <button
+            className="icon-button"
+            onClick={previousMoment}
+            aria-label="Previous Moment"
+            type="button"
+          >
+            <ChevronLeft size={21} aria-hidden="true" />
+          </button>
+          <div className="moment-dots" role="tablist" aria-label="Captured Moments">
+            {engagementConfig.moments.map((moment, index) => (
+              <button
+                key={moment.title}
+                className={index === activeMoment ? "is-active" : ""}
+                onClick={() => setActiveMoment(index)}
+                aria-label={`Show ${moment.title}`}
+                aria-selected={index === activeMoment}
+                role="tab"
+                type="button"
+              />
+            ))}
+          </div>
+          <button
+            className="icon-button"
+            onClick={nextMoment}
+            aria-label="Next Moment"
+            type="button"
+          >
+            <ChevronRight size={21} aria-hidden="true" />
+          </button>
+        </div>
+
+        <div className="moment-strip">
+        {engagementConfig.moments.map((moment, index) => (
+          <button
+            className={`moment-thumb${index === activeMoment ? " is-active" : ""}`}
             key={moment.title}
+            onClick={() => setActiveMoment(index)}
+            type="button"
           >
             <img src={moment.image} alt={`${moment.title} — ${moment.place}`} />
-            <figcaption>
+            <span>
               <strong>{moment.title}</strong>
-              <span>{moment.place}</span>
-            </figcaption>
-          </figure>
+              {moment.place}
+            </span>
+          </button>
         ))}
+        </div>
       </div>
     </section>
   );
@@ -556,6 +516,29 @@ function MomentsGallery() {
 /* ============================================================
    Invitation Studio
    ============================================================ */
+
+function AdminInvitationsPage() {
+  const homePath = getBasePath() ? `${getBasePath()}/` : "/";
+
+  return (
+    <main className="admin-page">
+      <header className="admin-header">
+        <a className="secondary-link" href={homePath}>
+          <ChevronLeft size={16} aria-hidden="true" />
+          Back to Website
+        </a>
+        <div>
+          <span className="script">Private Tools</span>
+          <h1>Invitation Manager</h1>
+          <p>
+            This page is hidden from the public navigation. Keep its URL private.
+          </p>
+        </div>
+      </header>
+      <InvitationStudio />
+    </main>
+  );
+}
 
 function InvitationStudio() {
   const [guests, setGuests] = useState(sampleGuests);
@@ -597,7 +580,6 @@ function InvitationStudio() {
       "guestName",
       "attending",
       "guestCount",
-      "meal",
       "message",
       "submittedAt",
     ];
@@ -611,13 +593,13 @@ function InvitationStudio() {
     });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = "wedding-rsvps.csv";
+    link.download = "engagement-rsvps.csv";
     link.click();
     URL.revokeObjectURL(link.href);
   }
 
   return (
-    <section className="section invite-studio" id="invites">
+    <section className="section invite-studio">
       <div className="section-heading">
         <span className="script">Invitations</span>
         <h2>Make each RSVP personal</h2>
@@ -644,7 +626,7 @@ function InvitationStudio() {
             />
           </label>
           <label>
-            Max guests
+            Suggested Party Size
             <input
               type="number"
               min="1"
@@ -672,7 +654,7 @@ function InvitationStudio() {
           </label>
           <button className="primary-button" type="submit">
             <Sparkles size={16} aria-hidden="true" />
-            Generate link
+            Generate Link
           </button>
         </form>
 
@@ -689,12 +671,12 @@ function InvitationStudio() {
                 href={getInvitePath(guest)}
                 className="secondary-link"
               >
-                View
+                View Invitation
               </a>
               <button
                 className="icon-button compact"
                 onClick={() => copyInvite(guest)}
-                aria-label={`Copy invite link for ${guest.name}`}
+                aria-label={`Copy Invitation Link for ${guest.name}`}
                 type="button"
               >
                 <Copy size={16} aria-hidden="true" />
@@ -726,7 +708,7 @@ function FinalSection({ countdown }) {
   return (
     <section
       className="final-section"
-      style={{ "--final-image": `url("${weddingConfig.finalImage}")` }}
+      style={{ "--final-image": `url("${engagementConfig.finalImage}")` }}
     >
       <div>
         <p className="eyebrow">With love and gratitude</p>
@@ -734,10 +716,6 @@ function FinalSection({ countdown }) {
           {countdown.days} days until our celebration begins.
         </h2>
       </div>
-      <a className="primary-button" href="#invites">
-        <Mail size={16} aria-hidden="true" />
-        Create invites
-      </a>
     </section>
   );
 }
@@ -746,7 +724,7 @@ function Footer() {
   return (
     <footer className="footer">
       <span className="script">Amrit &amp; Bidhata</span>
-      <p>September 6, 2026 · Made with love</p>
+      <p>{engagementConfig.engagementDateLabel} · Made with love</p>
     </footer>
   );
 }
@@ -764,11 +742,22 @@ function InvitePage() {
   };
   const [form, setForm] = useState({
     attending: "yes",
-    guestCount: Math.min(1, guest.partySize),
-    meal: "Vegetarian",
+    guestCount: Number(guest.partySize) || 1,
     message: "",
   });
+  const [inviteOpen, setInviteOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (!inviteOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      const timer = window.setTimeout(() => {
+        document.body.style.overflow = "";
+      }, 2200);
+      return () => window.clearTimeout(timer);
+    }
+  }, [inviteOpen]);
 
   async function submitRsvp(event) {
     event.preventDefault();
@@ -777,7 +766,6 @@ function InvitePage() {
       guestName: guest.name,
       attending: form.attending,
       guestCount: form.attending === "yes" ? Number(form.guestCount) : 0,
-      meal: form.meal,
       message: form.message.trim(),
       submittedAt: new Date().toISOString(),
     };
@@ -786,8 +774,8 @@ function InvitePage() {
     );
     setStoredResponses([...existing, response]);
 
-    if (weddingConfig.rsvpEndpoint) {
-      await fetch(weddingConfig.rsvpEndpoint, {
+    if (engagementConfig.rsvpEndpoint) {
+      await fetch(engagementConfig.rsvpEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(response),
@@ -798,28 +786,47 @@ function InvitePage() {
   }
 
   return (
-    <main className="invite-page">
-      <section className="invite-hero">
-        <div className="phone-card">
-          <img src={weddingConfig.inviteImage} alt="" />
+    <>
+      <DoorOverlay
+        open={inviteOpen}
+        onOpen={() => setInviteOpen(true)}
+        mark="An engagement invitation"
+        recipient={guest.name}
+      />
+      <main className="invite-page">
+        <section className="invite-hero">
+        <article className="invite-card">
+          <img src={engagementConfig.inviteImage} alt="" />
           <div className="invite-overlay">
-            <span className="stamp">Wedding Invitation</span>
-            <h1>{weddingConfig.coupleNames}</h1>
+            <span className="stamp">Engagement Party Invitation</span>
+            <h1>{engagementConfig.coupleNames}</h1>
             <span className="for">For {guest.name}</span>
+            <div className="invite-event-details">
+              <strong>{engagementConfig.engagementDateLabel}</strong>
+              <span>{engagementConfig.engagementTimeLabel}</span>
+            </div>
           </div>
-        </div>
+        </article>
 
         <form className="rsvp-card" onSubmit={submitRsvp}>
-          <span className="script">A note for you</span>
+          <span className="script">A Note for You</span>
           <h2>{guest.name}</h2>
           <p className="invite-note">
             With joy and family blessings, you are invited to celebrate Amrit
-            and Bidhata&rsquo;s engagement on September 6, 2026.
+            and Bidhata&rsquo;s engagement on {engagementConfig.engagementDateLabel}.
           </p>
-          <div className="venue-line">
+          <a
+            className="venue-line"
+            href={engagementConfig.engagementMapUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
             <MapPin size={17} aria-hidden="true" />
-            {weddingConfig.engagementVenue}
-          </div>
+            <span>
+              <strong>{engagementConfig.engagementVenue}</strong>
+              {engagementConfig.engagementAddress}
+            </span>
+          </a>
 
           <fieldset className="segmented">
             <legend>Will you attend?</legend>
@@ -859,8 +866,7 @@ function InvitePage() {
             Number attending
             <input
               type="number"
-              min="0"
-              max={guest.partySize}
+              min="1"
               value={form.attending === "no" ? 0 : form.guestCount}
               disabled={form.attending === "no"}
               onChange={(event) =>
@@ -872,21 +878,7 @@ function InvitePage() {
             />
           </label>
           <label>
-            Meal preference
-            <select
-              value={form.meal}
-              onChange={(event) =>
-                setForm((current) => ({ ...current, meal: event.target.value }))
-              }
-            >
-              <option>Vegetarian</option>
-              <option>Vegan</option>
-              <option>Jain</option>
-              <option>No preference</option>
-            </select>
-          </label>
-          <label>
-            A note for the couple
+            A Note for the Couple
             <textarea
               value={form.message}
               onChange={(event) =>
@@ -895,7 +887,7 @@ function InvitePage() {
                   message: event.target.value,
                 }))
               }
-              placeholder="Blessings, song requests, travel notes..."
+              placeholder="Share a blessing or message for Amrit and Bidhata..."
             />
           </label>
           <button className="primary-button" type="submit">
@@ -904,12 +896,13 @@ function InvitePage() {
           </button>
           {submitted ? (
             <p className="success-message">
-              RSVP saved — thank you for replying.
+              RSVP saved on this device — thank you for replying.
             </p>
           ) : null}
         </form>
-      </section>
-    </main>
+        </section>
+      </main>
+    </>
   );
 }
 
