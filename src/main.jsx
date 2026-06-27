@@ -69,7 +69,7 @@ const engagementConfig = {
   engagementMonth: "Sept",
   engagementYear: "2026",
   engagementWeekday: "Sunday",
-  engagementTimeLabel: "6:00 PM",
+  engagementTimeLabel: "5:00 PM",
   nextEventDate: "",
   engagementVenue: "Stone Creek Hall",
   engagementAddress: "4999 Buller Rd, Pattison, TX 77423",
@@ -142,39 +142,32 @@ const engagementConfig = {
   ],
   moments: [
     {
-      image: asset("assets/couple/tulip-laughter.jpg"),
-      title: "Spring in bloom",
-      place: "Among the tulips",
+      image: asset("assets/couple/car-selfie.jpg"),
+      alt: "Amrit and Bidhata smiling together in the car",
     },
     {
-      image: asset("assets/couple/garden-walk.jpg"),
-      title: "Rose walk",
-      place: "May - Rose garden",
+      image: asset("assets/couple/rose-walk-new.jpg"),
+      alt: "Amrit and Bidhata walking hand in hand through the rose garden",
     },
     {
-      image: asset("assets/couple/dc-chapter-two.jpg"),
-      title: "Blossom day",
-      place: "March - Washington, D.C.",
+      image: asset("assets/couple/tulip-garden.jpg"),
+      alt: "Amrit and Bidhata laughing together among orange tulips",
     },
     {
-      image: asset("assets/couple/potomac-chapter.jpg"),
-      title: "Temple morning",
-      place: "Potomac, Maryland",
+      image: asset("assets/couple/blossom-selfie.jpg"),
+      alt: "Amrit and Bidhata smiling beneath pink spring blossoms",
     },
     {
-      image: asset("assets/couple/dc-chapter-one.jpg"),
-      title: "Bright skies",
-      place: "March - D.C.",
+      image: asset("assets/couple/rose-garden.jpg"),
+      alt: "Bidhata smiling beside Amrit in the rose garden",
     },
     {
-      image: asset("assets/couple/texas-chapter.jpg"),
-      title: "Texas warmth",
-      place: "February - Burleson County",
+      image: asset("assets/couple/riverside-selfie.jpg"),
+      alt: "Amrit and Bidhata sharing a playful golden-hour selfie by the river",
     },
     {
-      image: asset("assets/couple/bethesda-chapter.jpg"),
-      title: "Everyday us",
-      place: "Everyday - Bethesda, Maryland",
+      image: asset("assets/couple/washington-monument.jpg"),
+      alt: "Amrit and Bidhata laughing beneath the Washington Monument",
     },
   ],
 };
@@ -512,13 +505,8 @@ function MomentsGallery() {
       </div>
 
       <div className="moments-carousel">
-        <figure className="moment-feature" key={active.title}>
-          <img src={active.image} alt={`${active.title} - ${active.place}`} />
-          <figcaption>
-            <span>{String(activeMoment + 1).padStart(2, "0")}</span>
-            <h3>{active.title}</h3>
-            <p>{active.place}</p>
-          </figcaption>
+        <figure className="moment-feature" key={active.image}>
+          <img src={active.image} alt={active.alt} />
         </figure>
 
         <div className="moment-controls" aria-label="Captured moment controls">
@@ -533,10 +521,10 @@ function MomentsGallery() {
           <div className="moment-dots" role="tablist" aria-label="Captured Moments">
             {engagementConfig.moments.map((moment, index) => (
               <button
-                key={moment.title}
+                key={moment.image}
                 className={index === activeMoment ? "is-active" : ""}
                 onClick={() => setActiveMoment(index)}
-                aria-label={`Show ${moment.title}`}
+                aria-label={`Show captured moment ${index + 1}: ${moment.alt}`}
                 aria-selected={index === activeMoment}
                 role="tab"
                 type="button"

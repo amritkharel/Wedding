@@ -1355,44 +1355,6 @@ p {
   width: 100%;
 }
 
-.moment-feature figcaption {
-  background: linear-gradient(transparent 0%, rgba(42, 32, 27, 0.18) 20%, rgba(42, 32, 27, 0.88) 100%);
-  bottom: 0;
-  color: var(--ivory);
-  left: 0;
-  padding: clamp(80px, 14vw, 150px) clamp(22px, 4vw, 42px) clamp(22px, 4vw, 38px);
-  position: absolute;
-  right: 0;
-}
-
-.moment-feature figcaption > span {
-  border-bottom: 1px solid rgba(216, 182, 95, 0.56);
-  border-top: 1px solid rgba(216, 182, 95, 0.56);
-  color: var(--gold-light);
-  display: inline-block;
-  font-family: var(--font-serif);
-  font-size: 1.6rem;
-  margin-bottom: 12px;
-  padding: 2px 12px;
-}
-
-.moment-feature h3 {
-  color: var(--ivory);
-  font-family: var(--font-serif);
-  font-size: clamp(2.2rem, 5vw, 4.2rem);
-  font-style: italic;
-  margin: 0;
-}
-
-.moment-feature p {
-  color: rgba(255, 250, 240, 0.78);
-  font-size: 0.76rem;
-  font-weight: 600;
-  letter-spacing: 0.22em;
-  margin: 8px 0 0;
-  text-transform: uppercase;
-}
-
 .moment-controls {
   align-items: center;
   display: grid;
@@ -2514,10 +2476,6 @@ textarea {
 
   .moment-feature {
     aspect-ratio: 3 / 4;
-  }
-
-  .moment-feature figcaption {
-    padding: 110px 20px 22px;
   }
 
   .moment-controls {
