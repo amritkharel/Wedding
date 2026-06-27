@@ -1439,7 +1439,8 @@ p {
 .studio-grid {
   display: grid;
   gap: 28px;
-  grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr);
+  grid-template-columns: minmax(280px, 620px);
+  justify-content: center;
   margin: 0 auto;
   max-width: 1080px;
 }
@@ -1600,12 +1601,93 @@ textarea {
   overflow: hidden;
 }
 
+.invitation-roster {
+  margin: clamp(52px, 8vw, 84px) auto 0;
+  max-width: 1080px;
+}
+
+.roster-header {
+  align-items: end;
+  display: flex;
+  gap: 28px;
+  justify-content: space-between;
+}
+
+.roster-header h3 {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-style: italic;
+  margin: 2px 0 4px;
+}
+
+.roster-header p {
+  color: var(--muted);
+  margin: 0;
+}
+
+.attendance-total {
+  align-items: center;
+  border-bottom: 1px solid rgba(184, 137, 58, 0.34);
+  color: var(--gold);
+  display: flex;
+  gap: 14px;
+  min-width: 210px;
+  padding: 0 4px 12px;
+}
+
+.attendance-total > span {
+  color: var(--ink);
+  display: grid;
+  font-size: 0.86rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.attendance-total strong {
+  font-family: var(--font-serif);
+  font-size: 1.9rem;
+  font-style: italic;
+  letter-spacing: 0;
+  line-height: 0.9;
+}
+
+.attendance-total small {
+  color: var(--muted);
+  font-size: 0.7rem;
+  margin-top: 6px;
+}
+
+.roster-breakdown {
+  border-bottom: 1px solid rgba(184, 137, 58, 0.2);
+  border-top: 1px solid rgba(184, 137, 58, 0.2);
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.74rem;
+  gap: 12px 28px;
+  letter-spacing: 0.12em;
+  margin-top: 26px;
+  padding: 14px 4px;
+  text-transform: uppercase;
+}
+
+.roster-breakdown strong {
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  letter-spacing: 0;
+}
+
+.roster-list {
+  margin-top: 18px;
+}
+
 .guest-row {
   align-items: center;
   border-bottom: 1px solid rgba(184, 137, 58, 0.14);
   display: grid;
   gap: 12px;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, auto) auto;
   padding: 18px 22px;
 }
 
@@ -1613,14 +1695,14 @@ textarea {
   border-bottom: 0;
 }
 
-.guest-row strong {
+.guest-identity > strong {
   color: var(--ink);
   display: block;
   font-family: var(--font-serif);
   font-size: 1.1rem;
 }
 
-.guest-row span {
+.guest-identity > span {
   color: var(--muted);
   display: block;
   font-size: 0.74rem;
@@ -1628,6 +1710,53 @@ textarea {
   letter-spacing: 0.16em;
   margin-top: 4px;
   text-transform: uppercase;
+}
+
+.rsvp-status {
+  align-items: center;
+  display: flex;
+  gap: 9px;
+}
+
+.rsvp-status > span {
+  display: grid;
+  gap: 2px;
+}
+
+.rsvp-status strong {
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.rsvp-status small {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.rsvp-status.accepted {
+  color: #4e765d;
+}
+
+.rsvp-status.declined {
+  color: var(--rose);
+}
+
+.rsvp-status.pending {
+  color: var(--gold);
+}
+
+.guest-actions {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.empty-roster {
+  color: var(--muted);
+  margin: 0;
+  padding: 32px 22px;
+  text-align: center;
 }
 
 .response-bar {
@@ -2351,11 +2480,31 @@ textarea {
   }
 
   .guest-row {
-    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: stretch;
+    grid-template-columns: 1fr;
+    padding: 20px;
   }
 
-  .guest-row .compact {
-    grid-column: 2;
+  .roster-header {
+    align-items: stretch;
+    display: grid;
+  }
+
+  .attendance-total {
+    min-width: 0;
+  }
+
+  .roster-breakdown {
+    display: grid;
+    gap: 8px;
+  }
+
+  .guest-actions {
+    margin-top: 4px;
+  }
+
+  .guest-actions .secondary-link {
+    flex: 1;
   }
 
   .invite-hero {

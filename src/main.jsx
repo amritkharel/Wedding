@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import {
   CakeSlice,
   CalendarDays,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Clock,
@@ -15,7 +16,9 @@ import {
   PartyPopper,
   Sparkles,
   Utensils,
+  Users,
   Wine,
+  XCircle,
 } from "lucide-react";
 import {
   createInvitation,
@@ -597,8 +600,58 @@ function InvitationStudio() {
   const [statusMessage, setStatusMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [responses, setResponses] = useState(() => getStoredResponses());
+  const rosterGuests = useMemo(() => {
+    const localResponses = new Map(
+      responses.map((response) => [
+        String(response.guestName || "").trim().toLocaleLowerCase(),
+        response,
+      ]),
+    );
+
+    return guests
+      .map((guest) => {
+        if (backendEnabled || guest.response) return guest;
+        const response = localResponses.get(guest.name.trim().toLocaleLowerCase());
+        if (!response) return guest;
+
+        return {
+          ...guest,
+          response: {
+            attending: response.attending === true || response.attending === "yes",
+            guestCount: Number(response.guestCount) || 0,
+            message: response.message || "",
+            submittedAt: response.submittedAt || "",
+          },
+        };
+      })
+      .sort((left, right) =>
+        left.name.localeCompare(right.name, undefined, {
+          numeric: true,
+          sensitivity: "base",
+        }),
+      );
+  }, [backendEnabled, guests, responses]);
+  const attendanceSummary = useMemo(
+    () =>
+      rosterGuests.reduce(
+        (summary, guest) => {
+          summary.invited += Number(guest.partySize) || 0;
+          if (!guest.response) {
+            summary.awaiting += 1;
+          } else if (guest.response.attending) {
+            summary.accepted += 1;
+            summary.attending += Number(guest.response.guestCount) || 0;
+          } else {
+            summary.declined += 1;
+          }
+          return summary;
+        },
+        { accepted: 0, attending: 0, awaiting: 0, declined: 0, invited: 0 },
+      ),
+    [rosterGuests],
+  );
   const responseRows = backendEnabled
-    ? guests
+    ? rosterGuests
         .filter((guest) => guest.response)
         .map((guest) => ({
           guestName: guest.name,
@@ -804,35 +857,90 @@ function InvitationStudio() {
             Generate Link
           </button>
         </form>
+      </div>
 
-        <div className="guest-links">
-          {guests.map((guest) => (
-            <div className="guest-row" key={`${guest.name}-${guest.group}`}>
-              <div>
+      <section className="invitation-roster" aria-labelledby="invitation-roster-title">
+        <header className="roster-header">
+          <div>
+            <span className="eyebrow">Guest List</span>
+            <h3 id="invitation-roster-title">Invitations</h3>
+            <p>Sorted alphabetically by guest name.</p>
+          </div>
+          <div className="attendance-total" aria-label={`${attendanceSummary.attending} people attending out of ${attendanceSummary.invited} invited`}>
+            <Users size={24} aria-hidden="true" />
+            <span>
+              <strong>{attendanceSummary.attending}</strong> attending
+              <small>of {attendanceSummary.invited} invited</small>
+            </span>
+          </div>
+        </header>
+
+        <div className="roster-breakdown" aria-label="RSVP summary">
+          <span><strong>{attendanceSummary.accepted}</strong> accepted</span>
+          <span><strong>{attendanceSummary.declined}</strong> declined</span>
+          <span><strong>{attendanceSummary.awaiting}</strong> awaiting RSVP</span>
+        </div>
+
+        <div className="guest-links roster-list">
+          {rosterGuests.map((guest) => {
+            const rsvpState = guest.response
+              ? guest.response.attending
+                ? "accepted"
+                : "declined"
+              : "pending";
+            const RsvpIcon = rsvpState === "accepted"
+              ? CheckCircle2
+              : rsvpState === "declined"
+                ? XCircle
+                : Clock;
+
+            return (
+            <div className="guest-row" key={guest.id || guest.token || `${guest.name}-${guest.group}`}>
+              <div className="guest-identity">
                 <strong>{guest.name}</strong>
                 <span>
-                  {guest.partySize} invited - {guest.group}
-                  {guest.response ? " - RSVP received" : ""}
+                  {guest.partySize} invited · {guest.group}
                 </span>
               </div>
-              <a
-                href={getInvitePath(guest)}
-                className="secondary-link"
-              >
-                View Invitation
-              </a>
-              <button
-                className="icon-button compact"
-                onClick={() => copyInvite(guest)}
-                aria-label={`Copy Invitation Link for ${guest.name}`}
-                type="button"
-              >
-                <Copy size={16} aria-hidden="true" />
-              </button>
+              <div className={`rsvp-status ${rsvpState}`}>
+                <RsvpIcon size={18} aria-hidden="true" />
+                <span>
+                  <strong>
+                    {rsvpState === "accepted"
+                      ? "Accepted"
+                      : rsvpState === "declined"
+                        ? "Declined"
+                        : "Awaiting RSVP"}
+                  </strong>
+                  {rsvpState === "accepted" ? (
+                    <small>{Number(guest.response.guestCount) || 0} attending</small>
+                  ) : null}
+                </span>
+              </div>
+              <div className="guest-actions">
+                <a
+                  href={getInvitePath(guest)}
+                  className="secondary-link"
+                >
+                  View Invitation
+                </a>
+                <button
+                  className="icon-button compact"
+                  onClick={() => copyInvite(guest)}
+                  aria-label={`Copy Invitation Link for ${guest.name}`}
+                  type="button"
+                >
+                  <Copy size={16} aria-hidden="true" />
+                </button>
+              </div>
             </div>
-          ))}
+            );
+          })}
+          {rosterGuests.length === 0 ? (
+            <p className="empty-roster">No invitations yet. Generate the first one above.</p>
+          ) : null}
         </div>
-      </div>
+      </section>
 
       <div className="response-bar">
         <span>
