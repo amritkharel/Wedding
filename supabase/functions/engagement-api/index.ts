@@ -70,6 +70,12 @@ function publicInvitation(row: Record<string, unknown>) {
   };
 }
 
+function firstRsvp(value: unknown) {
+  if (Array.isArray(value)) return value[0] || null;
+  if (value && typeof value === "object") return value as Record<string, unknown>;
+  return null;
+}
+
 async function listAdminInvitations(request: Request) {
   if (!requireAdmin(request)) return json(request, { error: "Unauthorized" }, 401);
 
@@ -93,18 +99,21 @@ async function listAdminInvitations(request: Request) {
 
   if (error) return json(request, { error: error.message }, 500);
 
-  const invitations = (data || []).map((row) => ({
-    ...publicInvitation(row),
-    createdAt: row.created_at,
-    response: row.rsvps?.[0]
-      ? {
-          attending: row.rsvps[0].attending,
-          guestCount: row.rsvps[0].guest_count,
-          message: row.rsvps[0].message,
-          submittedAt: row.rsvps[0].submitted_at,
-        }
-      : null,
-  }));
+  const invitations = (data || []).map((row) => {
+    const rsvp = firstRsvp(row.rsvps);
+    return {
+      ...publicInvitation(row),
+      createdAt: row.created_at,
+      response: rsvp
+        ? {
+            attending: rsvp.attending,
+            guestCount: rsvp.guest_count,
+            message: rsvp.message,
+            submittedAt: rsvp.submitted_at,
+          }
+        : null,
+    };
+  });
 
   return json(request, { invitations });
 }

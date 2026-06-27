@@ -878,7 +878,7 @@ p {
   gap: 10px;
   justify-content: flex-start;
   letter-spacing: 0.02em;
-  margin: 12px 0 28px;
+  margin: 12px 0 16px;
 }
 
 .hero-line .dot {
@@ -886,6 +886,38 @@ p {
   border-radius: 999px;
   height: 5px;
   width: 5px;
+}
+
+.hero-venue {
+  align-items: center;
+  color: var(--leaf);
+  display: flex;
+  gap: 10px;
+  margin: 0 0 30px;
+  position: relative;
+  width: fit-content;
+}
+
+.hero-venue > span {
+  display: grid;
+  gap: 2px;
+}
+
+.hero-venue strong {
+  font-family: var(--font-serif);
+  font-size: 1.08rem;
+  font-style: italic;
+  font-weight: 600;
+}
+
+.hero-venue small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
+.hero-venue:hover {
+  color: var(--gold);
 }
 
 /* Floral ornaments - pure CSS via SVG background */
@@ -1625,6 +1657,17 @@ textarea {
   margin: 0;
 }
 
+.roster-summary {
+  align-items: flex-end;
+  display: flex;
+  gap: 14px;
+}
+
+.roster-refresh {
+  min-height: 42px;
+  padding: 10px 15px;
+}
+
 .attendance-total {
   align-items: center;
   border-bottom: 1px solid rgba(184, 137, 58, 0.34);
@@ -1889,131 +1932,57 @@ textarea {
 }
 
 .invite-overlay {
-  align-items: center;
+  align-items: flex-end;
   background:
-    linear-gradient(180deg, rgba(28, 32, 24, 0.07), rgba(25, 29, 22, 0.14));
+    linear-gradient(180deg, transparent 42%, rgba(17, 22, 18, 0.18) 62%, rgba(12, 16, 13, 0.84) 100%);
   display: flex;
   inset: 0;
   justify-content: center;
-  padding: clamp(22px, 5vw, 38px);
+  padding: clamp(32px, 6vw, 52px) clamp(26px, 5vw, 44px);
   position: absolute;
   text-align: center;
   z-index: 2;
 }
 
-.invite-acrylic {
-  align-items: center;
-  backdrop-filter: blur(.25px) saturate(0.94);
-  background: rgba(255, 249, 239, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.82);
-  box-shadow:
-    0 18px 42px rgba(24, 30, 20, 0.22),
-    inset 0 0 0 1px rgba(38, 93, 83, 0.16);
-  color: #214f49;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  justify-content: center;
-  max-height: 100%;
-  padding: clamp(24px, 5vw, 42px) clamp(18px, 4vw, 34px);
+.invite-photo-copy {
+  color: #fff;
+  padding-bottom: clamp(2px, 1vw, 10px);
   position: relative;
-  text-shadow:
-    0 1px 2px rgba(255, 255, 255, 0.92),
-    0 0 10px rgba(255, 249, 239, 0.72);
   width: 100%;
 }
 
-.invite-acrylic::before {
-  border: 1px solid rgba(33, 79, 73, 0.54);
-  content: "";
-  inset: 9px;
-  pointer-events: none;
-  position: absolute;
+.invite-photo-copy h1 {
+  color: inherit;
+  font-family: var(--font-serif);
+  font-size: clamp(2.8rem, 7vw, 4.6rem);
+  font-style: italic;
+  font-weight: 500;
+  line-height: 0.95;
+  margin: 0 0 16px;
+  text-shadow: 0 3px 18px rgba(0, 0, 0, 0.72);
 }
 
-.invite-overlay .stamp {
-  color: #000000;
+.invite-photo-copy p {
+  color: inherit;
+  margin: 0;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.74);
+}
+
+.invite-photo-copy strong {
+  display: block;
   font-family: var(--font-sans);
-  font-size: clamp(0.62rem, 1.8vw, 0.74rem);
-  font-weight: 800;
-  letter-spacing: 0.22em;
-  margin-bottom: clamp(14px, 3vw, 24px);
+  font-size: clamp(0.68rem, 1.8vw, 0.82rem);
+  font-weight: 700;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
 }
 
-.invite-overlay h1 {
-  color: #000000;
-  font-family: var(--font-script);
-  font-size: clamp(3.1rem, 10vw, 5rem);
-  font-weight: 400;
-  line-height: 0.68;
-  margin: 0;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.76);
-}
-
-.invite-overlay h1 small {
+.invite-photo-copy span {
   display: block;
   font-family: var(--font-script);
-  font-size: 0.64em;
-  font-weight: 400;
-  margin-top: 0.38em;
-}
-
-.invite-toast {
-  color: #000000;
-  font-family: var(--font-sans);
-  font-size: clamp(0.56rem, 1.5vw, 0.68rem);
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  line-height: 1.5;
-  margin: clamp(20px, 4vw, 30px) 0 10px;
-  max-width: 28ch;
-  text-transform: uppercase;
-}
-
-.invite-names {
-  color: #000000;
-  font-family: var(--font-serif);
-  font-size: clamp(1.05rem, 3.4vw, 1.45rem);
-  font-weight: 600;
-  letter-spacing: 0.04em;
-}
-
-.invite-overlay .for {
-  border-bottom: 1px solid rgba(33, 79, 73, 0.24);
-  color: #000000;
-  font-size: clamp(0.55rem, 1.6vw, 0.68rem);
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  margin-top: 12px;
-  max-width: 100%;
-  padding-bottom: clamp(14px, 3vw, 22px);
-  text-transform: uppercase;
-}
-
-.invite-event-details {
-  align-items: center;
-  color: #000000;
-  display: flex;
-  flex-direction: column;
-  font-family: var(--font-serif);
-  gap: 5px;
-  margin-top: clamp(14px, 3vw, 22px);
-}
-
-.invite-event-details strong {
-  font-size: clamp(1.08rem, 3.4vw, 1.4rem);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-}
-
-.invite-event-details span {
-  font-family: var(--font-sans);
-  font-size: clamp(0.5rem, 1.5vw, 0.62rem);
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  line-height: 1.5;
-  text-transform: uppercase;
+  font-size: clamp(2rem, 5.5vw, 3.2rem);
+  line-height: 1;
+  margin-top: 9px;
 }
 
 .event-program {
@@ -2186,12 +2155,6 @@ textarea {
   width: clamp(34px, 6vw, 52px);
 }
 
-.program-emoji {
-  display: block;
-  font-size: clamp(1.85rem, 6vw, 3rem);
-  line-height: 1;
-}
-
 .program-right .program-copy {
   grid-column: 3;
   padding-left: clamp(14px, 3vw, 30px);
@@ -2215,34 +2178,106 @@ textarea {
   transform: none;
 }
 
-.rsvp-card {
+.program-arrival-note {
+  border-bottom: 1px solid rgba(184, 137, 58, 0.28);
+  border-top: 1px solid rgba(184, 137, 58, 0.28);
+  color: var(--gold);
+  margin: clamp(34px, 6vw, 58px) auto 0;
+  max-width: 680px;
+  padding: 0 4px;
+}
+
+.program-arrival-note ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.program-arrival-note li {
+  align-items: flex-start;
+  border-bottom: 1px solid rgba(184, 137, 58, 0.16);
   display: grid;
-  gap: 18px;
+  gap: 16px;
+  grid-template-columns: 24px minmax(0, 1fr);
+  padding: clamp(18px, 4vw, 24px) 0;
+}
+
+.program-arrival-note li:last-child {
+  border-bottom: 0;
+}
+
+.program-arrival-note svg {
+  margin-top: 2px;
+}
+
+.program-arrival-note strong {
+  color: var(--ink);
+  display: block;
+  font-family: var(--font-serif);
+  font-size: clamp(1.15rem, 3vw, 1.45rem);
+  font-style: italic;
+  font-weight: 600;
+}
+
+.program-arrival-note p {
+  color: var(--muted);
+  line-height: 1.65;
+  margin: 6px 0 0;
+}
+
+.rsvp-card {
+  background:
+    linear-gradient(180deg, rgba(255, 252, 245, 0.96), rgba(249, 241, 225, 0.94));
+  border-color: rgba(184, 137, 58, 0.38);
+  box-shadow: 0 24px 70px rgba(67, 49, 35, 0.14);
+  display: grid;
+  gap: 20px;
   grid-area: rsvp;
   padding: clamp(28px, 4vw, 44px);
+  position: relative;
+}
+
+.rsvp-card::before {
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  content: "";
+  height: 1px;
+  left: 12%;
+  position: absolute;
+  right: 12%;
+  top: 0;
+}
+
+.rsvp-heading {
+  border-bottom: 1px solid rgba(184, 137, 58, 0.2);
+  padding-bottom: 22px;
+  text-align: center;
 }
 
 .rsvp-card .script {
+  display: block;
   font-size: 2.6rem;
-  margin: 0;
+  margin: 0 0 8px;
 }
 
 .rsvp-card h2 {
   font-family: var(--font-serif);
-  font-size: clamp(2rem, 3.4vw, 2.6rem);
+  font-size: clamp(2.2rem, 4vw, 3rem);
   font-style: italic;
-  margin: 0;
+  margin: 0 0 14px;
 }
 
 .venue-line {
   align-items: center;
+  border-bottom: 1px solid rgba(184, 137, 58, 0.2);
+  border-top: 1px solid rgba(184, 137, 58, 0.2);
   color: var(--leaf);
   display: flex;
   font-family: var(--font-serif);
   font-size: 1rem;
   font-style: italic;
-  gap: 8px;
-  padding: 12px 0;
+  gap: 12px;
+  justify-content: center;
+  padding: 16px 0;
   transition: color 180ms ease;
 }
 
@@ -2252,12 +2287,28 @@ textarea {
 
 .venue-line > span {
   display: grid;
-  gap: 2px;
+  gap: 3px;
 }
 
 .venue-line strong {
   color: inherit;
+  font-size: 1.12rem;
   font-weight: 600;
+}
+
+.venue-line small {
+  color: var(--muted);
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.venue-line span span {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
 }
 
 .invite-note {
@@ -2266,6 +2317,15 @@ textarea {
   font-size: 1.1rem;
   line-height: 1.6;
   margin: 0;
+}
+
+.rsvp-heading .invite-note {
+  margin: 0 auto;
+  max-width: 40ch;
+}
+
+.rsvp-card > .primary-button {
+  width: 100%;
 }
 
 .segmented {
@@ -2381,8 +2441,8 @@ textarea {
   .invite-hero {
     grid-template-areas:
       "card"
-      "program"
-      "rsvp";
+      "rsvp"
+      "program";
   }
 
   .invite-card {
@@ -2486,6 +2546,11 @@ textarea {
   }
 
   .roster-header {
+    align-items: stretch;
+    display: grid;
+  }
+
+  .roster-summary {
     align-items: stretch;
     display: grid;
   }

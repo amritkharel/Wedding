@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   CakeSlice,
@@ -10,10 +10,13 @@ import {
   Copy,
   DoorOpen,
   Download,
+  Gift,
   Heart,
   MapPin,
   Music,
   PartyPopper,
+  RefreshCw,
+  Shirt,
   Sparkles,
   Utensils,
   Users,
@@ -51,7 +54,7 @@ const eventProgram = [
   { time: "9:30 PM", dateTime: "21:30", title: "Cake Cutting", Icon: CakeSlice },
   { time: "9:45 PM", dateTime: "21:45", title: "Open Dance Floor", Icon: PartyPopper },
   { time: "10:30 PM", dateTime: "22:30", title: "Banquet Bar Closes", Icon: Wine },
-  { time: "11:00 PM", dateTime: "23:00", title: "Event Ends", emoji: "😢", Icon: Clock },
+  { time: "11:00 PM", dateTime: "23:00", title: "Event Ends", Icon: Heart },
 ];
 
 const engagementConfig = {
@@ -68,10 +71,10 @@ const engagementConfig = {
   engagementWeekday: "Sunday",
   engagementTimeLabel: "6:00 PM",
   nextEventDate: "",
-  engagementVenue: "The Springs in Katy",
-  engagementAddress: "4999 Buller Rd, Brookshire, TX 77423",
+  engagementVenue: "Stone Creek Hall",
+  engagementAddress: "4999 Buller Rd, Pattison, TX 77423",
   engagementMapUrl:
-    "https://www.google.com/maps/search/?api=1&query=The+Springs+in+Katy+4999+Buller+Rd+Brookshire+TX+77423",
+    "https://www.google.com/maps/search/?api=1&query=Stone+Creek+Hall+4999+Buller+Rd+Pattison+TX+77423",
   inviteImage: asset("assets/couple/garden-walk.jpg"),
   envelopePaper: asset("assets/envelope/floral-envelope.jpg"),
   waxSealImage: asset("assets/envelope/wax-seal-ab.jpg"),
@@ -138,6 +141,11 @@ const engagementConfig = {
     },
   ],
   moments: [
+    {
+      image: asset("assets/couple/tulip-laughter.jpg"),
+      title: "Spring in bloom",
+      place: "Among the tulips",
+    },
     {
       image: asset("assets/couple/garden-walk.jpg"),
       title: "Rose walk",
@@ -305,34 +313,15 @@ function App() {
 
 function HomePage() {
   const countdown = useCountdown();
-  const [doorOpen, setDoorOpen] = useState(false);
-
-  useEffect(() => {
-    if (!doorOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      const timer = window.setTimeout(() => {
-        document.body.style.overflow = "";
-      }, 1500);
-      return () => window.clearTimeout(timer);
-    }
-  }, [doorOpen]);
 
   return (
-    <>
-      <DoorOverlay
-        open={doorOpen}
-        onOpen={() => setDoorOpen(true)}
-        mark="Together with our families"
-      />
-      <main>
-        <SiteNav />
-        <Hero countdown={countdown} />
-        <MomentsGallery />
-        <FinalSection countdown={countdown} />
-        <Footer />
-      </main>
-    </>
+    <main>
+      <SiteNav />
+      <Hero countdown={countdown} />
+      <MomentsGallery />
+      <FinalSection countdown={countdown} />
+      <Footer />
+    </main>
   );
 }
 
@@ -442,6 +431,18 @@ function Hero({ countdown }) {
             <span className="dot" />
             <span>{engagementConfig.engagementTimeLabel}</span>
           </div>
+          <a
+            className="hero-venue"
+            href={engagementConfig.engagementMapUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <MapPin size={19} aria-hidden="true" />
+            <span>
+              <strong>{engagementConfig.engagementVenue}</strong>
+              <small>{engagementConfig.engagementAddress}</small>
+            </span>
+          </a>
           <Countdown countdown={countdown} />
         </div>
 
@@ -665,6 +666,27 @@ function InvitationStudio() {
         }))
     : responses;
 
+  const refreshInvitations = useCallback(async (showLoading = true) => {
+    if (!backendEnabled || !adminSecret) return;
+
+    if (showLoading) {
+      setIsLoading(true);
+      setStatusMessage("Loading invitations...");
+    }
+
+    try {
+      const items = await listInvitations(adminSecret);
+      setGuests(items.map(normalizeInvitation));
+      if (showLoading) {
+        setStatusMessage("RSVP list refreshed from the database.");
+      }
+    } catch (error) {
+      setStatusMessage(error.message);
+    } finally {
+      if (showLoading) setIsLoading(false);
+    }
+  }, [adminSecret, backendEnabled]);
+
   useEffect(() => {
     if (backendEnabled) return undefined;
     const refresh = () => setResponses(getStoredResponses());
@@ -674,30 +696,16 @@ function InvitationStudio() {
 
   useEffect(() => {
     if (!backendEnabled || !adminSecret) return undefined;
-    let active = true;
 
     sessionStorage.setItem("engagement-admin-secret", adminSecret);
-    setIsLoading(true);
-    setStatusMessage("Loading invitations...");
+    refreshInvitations();
+    const refreshTimer = window.setInterval(
+      () => refreshInvitations(false),
+      30000,
+    );
 
-    listInvitations(adminSecret)
-      .then((items) => {
-        if (!active) return;
-        setGuests(items.map(normalizeInvitation));
-        setStatusMessage("Backend connected. Invitations are stored in the database.");
-      })
-      .catch((error) => {
-        if (!active) return;
-        setStatusMessage(error.message);
-      })
-      .finally(() => {
-        if (active) setIsLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [adminSecret, backendEnabled]);
+    return () => window.clearInterval(refreshTimer);
+  }, [adminSecret, backendEnabled, refreshInvitations]);
 
   async function addGuest(event) {
     event.preventDefault();
@@ -866,12 +874,26 @@ function InvitationStudio() {
             <h3 id="invitation-roster-title">Invitations</h3>
             <p>Sorted alphabetically by guest name.</p>
           </div>
-          <div className="attendance-total" aria-label={`${attendanceSummary.attending} people attending out of ${attendanceSummary.invited} invited`}>
-            <Users size={24} aria-hidden="true" />
-            <span>
-              <strong>{attendanceSummary.attending}</strong> attending
-              <small>of {attendanceSummary.invited} invited</small>
-            </span>
+          <div className="roster-summary">
+            <div className="attendance-total" aria-label={`${attendanceSummary.attending} people attending out of ${attendanceSummary.invited} invited`}>
+              <Users size={24} aria-hidden="true" />
+              <span>
+                <strong>{attendanceSummary.attending}</strong> attending
+                <small>of {attendanceSummary.invited} invited</small>
+              </span>
+            </div>
+            {backendEnabled ? (
+              <button
+                className="secondary-button roster-refresh"
+                onClick={() => refreshInvitations()}
+                type="button"
+                disabled={!adminSecret || isLoading}
+                title="Refresh invitations and RSVP statuses"
+              >
+                <RefreshCw size={16} aria-hidden="true" />
+                Refresh
+              </button>
+            ) : null}
           </div>
         </header>
 
@@ -914,6 +936,8 @@ function InvitationStudio() {
                   </strong>
                   {rsvpState === "accepted" ? (
                     <small>{Number(guest.response.guestCount) || 0} attending</small>
+                  ) : rsvpState === "declined" ? (
+                    <small>Response received</small>
                   ) : null}
                 </span>
               </div>
@@ -1033,11 +1057,11 @@ function EventProgram() {
             </span>
           ))}
         </h2>
-        <p>{engagementConfig.engagementDateLabel} · The Springs in Katy</p>
+        <p>{engagementConfig.engagementDateLabel} · {engagementConfig.engagementVenue}</p>
       </header>
 
       <ol className="program-timeline">
-        {eventProgram.map(({ time, dateTime, title, emoji, Icon }, index) => (
+        {eventProgram.map(({ time, dateTime, title, Icon }, index) => (
           <li
             className={`program-entry ${index % 2 === 0 ? "program-left" : "program-right"}`}
             style={{ "--event-index": index }}
@@ -1049,11 +1073,39 @@ function EventProgram() {
             </div>
             <span className="program-marker" aria-hidden="true" />
             <span className="program-icon" aria-hidden="true">
-              {emoji ? <span className="program-emoji">{emoji}</span> : <Icon strokeWidth={1.35} />}
+              <Icon strokeWidth={1.35} />
             </span>
           </li>
         ))}
       </ol>
+      <aside className="program-arrival-note">
+        <ul>
+          <li>
+            <Clock size={22} strokeWidth={1.5} aria-hidden="true" />
+            <div>
+              <strong>Please arrive by 5:00 PM</strong>
+              <p>
+                Our celebration will begin promptly, and we would love for you
+                to enjoy every part of the program with us.
+              </p>
+            </div>
+          </li>
+          <li>
+            <Gift size={22} strokeWidth={1.5} aria-hidden="true" />
+            <div>
+              <strong>Your presence is our gift</strong>
+              <p>With love, we kindly request no flowers or gifts.</p>
+            </div>
+          </li>
+          <li>
+            <Shirt size={22} strokeWidth={1.5} aria-hidden="true" />
+            <div>
+              <strong>Dress code: Traditional attire</strong>
+              <p>We would be delighted to celebrate together in traditional dress.</p>
+            </div>
+          </li>
+        </ul>
+      </aside>
     </section>
   );
 }
@@ -1079,6 +1131,9 @@ function InvitePage() {
   });
   const [inviteOpen, setInviteOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const homePath = getBasePath() ? `${getBasePath()}/` : "/";
 
   useEffect(() => {
     if (!backendEnabled || !inviteToken) return undefined;
@@ -1132,21 +1187,29 @@ function InvitePage() {
       submittedAt: new Date().toISOString(),
     };
 
-    if (backendEnabled && inviteToken && guest.token) {
-      await submitInvitationRsvp(inviteToken, {
-        attending: form.attending === "yes",
-        guestCount: response.guestCount,
-        message: response.message,
-      });
-      setSubmitted(true);
-      return;
-    }
+    setIsSubmitting(true);
+    setSubmitError("");
 
-    const existing = getStoredResponses().filter(
-      (item) => item.inviteId !== response.inviteId,
-    );
-    setStoredResponses([...existing, response]);
-    setSubmitted(true);
+    try {
+      if (backendEnabled && inviteToken && guest.token) {
+        await submitInvitationRsvp(inviteToken, {
+          attending: form.attending === "yes",
+          guestCount: response.guestCount,
+          message: response.message,
+        });
+      } else {
+        const existing = getStoredResponses().filter(
+          (item) => item.inviteId !== response.inviteId,
+        );
+        setStoredResponses([...existing, response]);
+      }
+
+      setSubmitted(true);
+      window.setTimeout(() => window.location.assign(homePath), 1100);
+    } catch (error) {
+      setSubmitError(error.message || "We could not save your RSVP. Please try again.");
+      setIsSubmitting(false);
+    }
   }
 
   const displayGuest = guest || fallbackGuest;
@@ -1164,36 +1227,29 @@ function InvitePage() {
         <article className="invite-card">
           <img src={engagementConfig.inviteImage} alt="" />
           <div className="invite-overlay">
-            <div className="invite-acrylic">
-              <span className="stamp">We&rsquo;re Engaged!</span>
-              <h1>
-                Celebrate
-                <small>with us</small>
-              </h1>
-              <p className="invite-toast">Let&rsquo;s eat, drink &amp; have a good time</p>
-              <strong className="invite-names">{engagementConfig.coupleNames}</strong>
-              <span className="for">Especially for {displayGuest.name}</span>
-              <div className="invite-event-details">
-                <strong>{engagementConfig.engagementDateLabel}</strong>
-                <span>{engagementConfig.engagementTimeLabel} · {engagementConfig.engagementVenue}</span>
-              </div>
+            <div className="invite-photo-copy">
+              <h1>{engagementConfig.coupleNames}</h1>
+              <p>
+                <strong>We&rsquo;re Engaged!!!</strong>
+                <span>Celebrate with us</span>
+              </p>
             </div>
           </div>
         </article>
 
-        <EventProgram />
-
         <form className="rsvp-card" onSubmit={submitRsvp}>
-          <span className="script">A Note for You</span>
-          <h2>{displayGuest.name}</h2>
+          <header className="rsvp-heading">
+            <span className="script">A Note for You</span>
+            <h2>{displayGuest.name}</h2>
+            <p className="invite-note">
+              Hand in hand, surrounded by the love that raised us.<br />
+              Please join us to toast to a lifetime of shared hands and joined hearts.
+            </p>
+          </header>
           {loadError ? <p className="error-message">{loadError}</p> : null}
           {!guest && !loadError ? (
             <p className="invite-note">Loading your invitation...</p>
           ) : null}
-          <p className="invite-note">
-            With joy and family blessings, you are invited to celebrate Amrit
-            and Bidhata&rsquo;s engagement on {engagementConfig.engagementDateLabel}.
-          </p>
           <a
             className="venue-line"
             href={engagementConfig.engagementMapUrl}
@@ -1202,8 +1258,9 @@ function InvitePage() {
           >
             <MapPin size={17} aria-hidden="true" />
             <span>
+              <small>Venue Location</small>
               <strong>{engagementConfig.engagementVenue}</strong>
-              {engagementConfig.engagementAddress}
+              <span>{engagementConfig.engagementAddress}</span>
             </span>
           </a>
 
@@ -1272,18 +1329,22 @@ function InvitePage() {
           <button
             className="primary-button"
             type="submit"
-            disabled={!guest || Boolean(loadError)}
+            disabled={!guest || Boolean(loadError) || isSubmitting || submitted}
           >
             <Heart size={16} aria-hidden="true" />
-            Send RSVP
+            {isSubmitting || submitted ? "Saving RSVP" : "Send RSVP"}
           </button>
+          {submitError ? <p className="error-message">{submitError}</p> : null}
           {submitted ? (
             <p className="success-message">
-              RSVP saved. Thank you for replying.
+              RSVP saved. Returning you to Amrit and Bidhata&rsquo;s homepage...
             </p>
           ) : null}
         </form>
+
+        <EventProgram />
         </section>
+        <Footer />
       </main>
     </>
   );
