@@ -1932,7 +1932,7 @@ textarea {
 }
 
 .invite-overlay .stamp {
-  color: #214f49;
+  color: #000000;
   font-family: var(--font-sans);
   font-size: clamp(0.62rem, 1.8vw, 0.74rem);
   font-weight: 800;
@@ -1942,7 +1942,7 @@ textarea {
 }
 
 .invite-overlay h1 {
-  color: #214f49;
+  color: #000000;
   font-family: var(--font-script);
   font-size: clamp(3.1rem, 10vw, 5rem);
   font-weight: 400;
@@ -1960,7 +1960,7 @@ textarea {
 }
 
 .invite-toast {
-  color: rgba(33, 79, 73, 0.84);
+  color: #000000;
   font-family: var(--font-sans);
   font-size: clamp(0.56rem, 1.5vw, 0.68rem);
   font-weight: 800;
@@ -1972,7 +1972,7 @@ textarea {
 }
 
 .invite-names {
-  color: #214f49;
+  color: #000000;
   font-family: var(--font-serif);
   font-size: clamp(1.05rem, 3.4vw, 1.45rem);
   font-weight: 600;
@@ -1981,7 +1981,7 @@ textarea {
 
 .invite-overlay .for {
   border-bottom: 1px solid rgba(33, 79, 73, 0.24);
-  color: rgba(33, 79, 73, 0.80);
+  color: #000000;
   font-size: clamp(0.55rem, 1.6vw, 0.68rem);
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -1993,7 +1993,7 @@ textarea {
 
 .invite-event-details {
   align-items: center;
-  color: #214f49;
+  color: #000000;
   display: flex;
   flex-direction: column;
   font-family: var(--font-serif);
