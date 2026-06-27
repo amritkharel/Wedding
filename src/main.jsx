@@ -60,9 +60,9 @@ const engagementConfig = {
   engagementAddress: "4999 Buller Rd, Brookshire, TX 77423",
   engagementMapUrl:
     "https://www.google.com/maps/search/?api=1&query=The+Springs+in+Katy+4999+Buller+Rd+Brookshire+TX+77423",
-  inviteImage: asset("assets/couple/garden-walk.jpg"),
-  envelopePaper: asset("assets/envelope/floral-envelope.jpg"),
-  waxSealImage: asset("assets/envelope/wax-seal-ab.jpg"),
+  inviteImage: asset("couple/garden-walk.jpg"),
+  envelopePaper: asset("envelope/floral-envelope.jpg"),
+  waxSealImage: asset("envelope/wax-seal-ab.jpg"),
   contactEmail: "hello@amritandbidhata.com",
   storyCards: [
     {
