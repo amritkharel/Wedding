@@ -1,0 +1,2 @@
+[functions.engagement-api]
+verify_jwt = false

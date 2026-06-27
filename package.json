@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "vite build && cp dist/index.html dist/404.html",
-    "preview": "vite preview --host 127.0.0.1"
+    "preview": "vite preview --host 127.0.0.1",
+    "check:function": "deno check supabase/functions/engagement-api/index.ts",
+    "deploy:function": "supabase functions deploy engagement-api --no-verify-jwt"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.0.0",
@@ -14,5 +16,9 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "vite": "^7.0.0"
+  },
+  "devDependencies": {
+    "deno": "^2.8.3",
+    "supabase": "^2.107.0"
   }
 }

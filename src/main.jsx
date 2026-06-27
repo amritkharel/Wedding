@@ -1,18 +1,46 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
+  CakeSlice,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
+  Clock,
   Copy,
+  DoorOpen,
   Download,
   Heart,
   MapPin,
+  Music,
+  PartyPopper,
   Sparkles,
+  Utensils,
+  Wine,
 } from "lucide-react";
+import {
+  createInvitation,
+  getInvitation,
+  hasInvitationBackend,
+  listInvitations,
+  submitInvitationRsvp,
+} from "./invitationApi.js";
 import "./styles.css";
 
 const asset = (path) => `${import.meta.env.BASE_URL}${path}`;
+
+const eventProgram = [
+  { time: "5:00 PM", dateTime: "17:00", title: "Welcome Hour · Pani Puri & Samosa Chaat", Icon: Utensils },
+  { time: "6:15 PM", dateTime: "18:15", title: "Doors Open · Photobooth Opens", Icon: DoorOpen },
+  { time: "6:30 PM", dateTime: "18:30", title: "Bar Opens", Icon: Wine },
+  { time: "7:00 PM", dateTime: "19:00", title: "Grand Entrance & First Dance", Icon: Heart },
+  { time: "7:15 PM", dateTime: "19:15", title: "Champagne Popping", Icon: Sparkles },
+  { time: "7:20 PM", dateTime: "19:20", title: "Dinner Starts · Stage Photos", Icon: Utensils },
+  { time: "8:45 PM", dateTime: "20:45", title: "Performances by Family & Friends", Icon: Music },
+  { time: "9:30 PM", dateTime: "21:30", title: "Cake Cutting", Icon: CakeSlice },
+  { time: "9:45 PM", dateTime: "21:45", title: "Open Dance Floor", Icon: PartyPopper },
+  { time: "10:30 PM", dateTime: "22:30", title: "Banquet Bar Closes", Icon: Wine },
+  { time: "11:00 PM", dateTime: "23:00", title: "Event Ends", emoji: "😢", Icon: Clock },
+];
 
 const engagementConfig = {
   coupleNames: "Amrit & Bidhata",
@@ -32,23 +60,22 @@ const engagementConfig = {
   engagementAddress: "4999 Buller Rd, Brookshire, TX 77423",
   engagementMapUrl:
     "https://www.google.com/maps/search/?api=1&query=The+Springs+in+Katy+4999+Buller+Rd+Brookshire+TX+77423",
-  heroImage: asset("assets/couple/pond-kiss.jpg"),
   inviteImage: asset("assets/couple/garden-walk.jpg"),
-  finalImage: asset("assets/couple/pond-kiss.jpg"),
+  envelopePaper: asset("assets/envelope/floral-envelope.jpg"),
+  waxSealImage: asset("assets/envelope/wax-seal-ab.jpg"),
   contactEmail: "hello@amritandbidhata.com",
-  rsvpEndpoint: "",
   storyCards: [
     {
       chapter: "Chapter One",
-      date: "February · Burleson County, Texas",
+      date: "February - Burleson County, Texas",
       title: "Where the warmth began",
       image: asset("assets/couple/texas-chapter.jpg"),
       text:
-        "A late-afternoon smile in Texas — the kind of soft, ordinary moment that turned out to be the beginning of every chapter after it.",
+        "A late-afternoon smile in Texas, the kind of soft, ordinary moment that turned out to be the beginning of every chapter after it.",
     },
     {
       chapter: "Chapter Two",
-      date: "March · Washington, D.C.",
+      date: "March - Washington, D.C.",
       title: "Blue skies and bright laughter",
       image: asset("assets/couple/dc-chapter-one.jpg"),
       text:
@@ -56,23 +83,15 @@ const engagementConfig = {
     },
     {
       chapter: "Chapter Three",
-      date: "March · The Tidal Basin",
+      date: "March - The Tidal Basin",
       title: "Beneath the blossoms",
       image: asset("assets/couple/dc-chapter-two.jpg"),
       text:
         "Cherry blossoms fell like soft confetti. A photograph that needed no filter, because the world had already turned pink for them.",
     },
     {
-      chapter: "Chapter Four",
-      date: "April · The garden pond",
-      title: "A quiet pause",
-      image: asset("assets/couple/pond-kiss.jpg"),
-      text:
-        "Still water, still hearts, one quiet kiss by the pond — the chapter where the future began to feel close enough to touch.",
-    },
-    {
       chapter: "Chapter Five",
-      date: "May · The rose walk",
+      date: "May - The rose walk",
       title: "Walking forward",
       image: asset("assets/couple/garden-walk.jpg"),
       text:
@@ -83,7 +102,7 @@ const engagementConfig = {
     {
       year: "Feb 2026",
       title: "Texas warmth",
-      text: "A golden selfie from Burleson County opens the album — the beginning of an unforgettable year.",
+      text: "A golden selfie from Burleson County opens the album, the beginning of an unforgettable year.",
     },
     {
       year: "Mar 2026",
@@ -98,7 +117,7 @@ const engagementConfig = {
     {
       year: "May 2026",
       title: "Through the roses",
-      text: "A long walk through the rose garden — the moment forever stopped feeling far away.",
+      text: "A long walk through the rose garden, the moment forever stopped feeling far away.",
     },
     {
       year: "Sep 6, 2026",
@@ -108,19 +127,14 @@ const engagementConfig = {
   ],
   moments: [
     {
-      image: asset("assets/couple/pond-kiss.jpg"),
-      title: "Garden stillness",
-      place: "April · Garden pond",
-    },
-    {
       image: asset("assets/couple/garden-walk.jpg"),
       title: "Rose walk",
-      place: "May · Rose garden",
+      place: "May - Rose garden",
     },
     {
       image: asset("assets/couple/dc-chapter-two.jpg"),
       title: "Blossom day",
-      place: "March · Washington, D.C.",
+      place: "March - Washington, D.C.",
     },
     {
       image: asset("assets/couple/potomac-chapter.jpg"),
@@ -130,17 +144,17 @@ const engagementConfig = {
     {
       image: asset("assets/couple/dc-chapter-one.jpg"),
       title: "Bright skies",
-      place: "March · D.C.",
+      place: "March - D.C.",
     },
     {
       image: asset("assets/couple/texas-chapter.jpg"),
       title: "Texas warmth",
-      place: "February · Burleson County",
+      place: "February - Burleson County",
     },
     {
       image: asset("assets/couple/bethesda-chapter.jpg"),
       title: "Everyday us",
-      place: "Everyday · Bethesda, Maryland",
+      place: "Everyday - Bethesda, Maryland",
     },
   ],
 };
@@ -201,7 +215,26 @@ function getBasePath() {
 }
 
 function getInvitePath(guest) {
-  return `${getBasePath()}/invite?g=${encodeInvite(guest)}`;
+  return `${getBasePath()}/invite?g=${guest.token || encodeInvite(guest)}`;
+}
+
+function normalizeInvitation(invitation) {
+  return {
+    id: invitation.id,
+    token: invitation.token,
+    name: invitation.guestName || invitation.guest_name || invitation.name,
+    partySize:
+      invitation.invitedCount ||
+      invitation.invited_count ||
+      invitation.partySize ||
+      1,
+    group:
+      invitation.groupName ||
+      invitation.group_name ||
+      invitation.group ||
+      "Guest",
+    response: invitation.response || invitation.rsvp || null,
+  };
 }
 
 function getStoredResponses() {
@@ -268,7 +301,7 @@ function HomePage() {
     } else {
       const timer = window.setTimeout(() => {
         document.body.style.overflow = "";
-      }, 2200);
+      }, 1500);
       return () => window.clearTimeout(timer);
     }
   }, [doorOpen]);
@@ -296,39 +329,57 @@ function HomePage() {
    ============================================================ */
 
 function DoorOverlay({ open, onOpen, mark, recipient }) {
+  const invitePhoto = `url("${engagementConfig.inviteImage}")`;
+  const envelopePaper = `url("${engagementConfig.envelopePaper}")`;
+  const buttonLabel = recipient ? "Open Your Invitation" : "Enter Website";
+  const coverGuest = recipient ? `${recipient}` : (mark || "Together with our families");
+
   return (
-    <div className={`door-overlay${open ? " open" : ""}`} aria-hidden={open}>
-      <div className="door-frame">
-        <div className="door-arch">
-          <div className="door-panel left" />
-          <div className="door-panel right" />
-          <div className="door-light" />
-          <div className="door-ribbon" aria-hidden="true">
-            <span className="ribbon-band ribbon-band-left" />
-            <span className="ribbon-band ribbon-band-right" />
-            <span className="bow-loop bow-loop-left" />
-            <span className="bow-loop bow-loop-right" />
-            <span className="bow-tail bow-tail-left" />
-            <span className="bow-tail bow-tail-right" />
-            <span className="bow-knot" />
-          </div>
-          <div className="door-content">
-            <p className="door-mark">{mark || "You are invited"}</p>
-            <h1 className="door-title">
-              Engagement Party
-              <em>Invitation</em>
-            </h1>
-            <p className="door-couple">Amrit &amp; Bidhata</p>
-            {recipient ? <p className="door-recipient">For {recipient}</p> : null}
-            <div className="door-date">
-              <strong>{engagementConfig.engagementDateLabel}</strong>
-              <span>{engagementConfig.engagementWeekday}</span>
+    <div
+      className={`door-overlay realistic-envelope${recipient ? " personal-envelope" : " home-envelope"}${open ? " open" : ""}`}
+      aria-hidden={open}
+    >
+      <div
+        className="envelope-stage"
+        style={{ "--envelope-photo": invitePhoto, "--envelope-paper": envelopePaper }}
+      >
+        <div className="phone-invite-card" aria-hidden="true">
+          <div className="invite-reveal-card">
+            <div className="invite-reveal-art">
+              <span>{mark || "Together with our families"}</span>
+              <h1>{engagementConfig.coupleNames}</h1>
+              {recipient ? <p>For {recipient}</p> : null}
+              <div>
+                <strong>{engagementConfig.engagementDateLabel}</strong>
+                <small>{engagementConfig.engagementTimeLabel}</small>
+              </div>
             </div>
           </div>
+
+          <div className="envelope-cover">
+            <div className="cover-paper">
+              <div className="cover-copy">
+                <span className="cover-guest">{coverGuest}</span>
+                <span className="cover-invite-text">You are invited</span>
+              </div>
+            </div>
+            <div className="envelope-mouth" aria-hidden="true" />
+            <div className="cover-flap-assembly">
+              <div className="cover-flap cover-flap-top" aria-hidden="true" />
+              <div className="cover-flap cover-flap-back" aria-hidden="true" />
+            </div>
+            <button
+              className="door-cta wax-seal"
+              onClick={onOpen}
+              type="button"
+              aria-label={buttonLabel}
+            >
+              <span className="wax-shadow" aria-hidden="true" />
+              <img src={engagementConfig.waxSealImage} alt="" aria-hidden="true" />
+              <span className="wax-label">Tap to open</span>
+            </button>
+          </div>
         </div>
-        <button className="door-cta" onClick={onOpen} type="button">
-          Open Invitation
-        </button>
       </div>
     </div>
   );
@@ -382,9 +433,6 @@ function Hero({ countdown }) {
           <Countdown countdown={countdown} />
         </div>
 
-        <figure className="hero-photo-frame">
-          <img src={engagementConfig.heroImage} alt="" />
-        </figure>
       </div>
     </section>
   );
@@ -445,14 +493,14 @@ function MomentsGallery() {
         <span className="script">Captured Moments</span>
         <h2>Our favorite little frames</h2>
         <p>
-          A living album of the in-between — sunlight, blossoms, quiet streets,
+          A living album of the in-between: sunlight, blossoms, quiet streets,
           and the soft moments that brought us here.
         </p>
       </div>
 
       <div className="moments-carousel">
         <figure className="moment-feature" key={active.title}>
-          <img src={active.image} alt={`${active.title} — ${active.place}`} />
+          <img src={active.image} alt={`${active.title} - ${active.place}`} />
           <figcaption>
             <span>{String(activeMoment + 1).padStart(2, "0")}</span>
             <h3>{active.title}</h3>
@@ -492,22 +540,6 @@ function MomentsGallery() {
           </button>
         </div>
 
-        <div className="moment-strip">
-        {engagementConfig.moments.map((moment, index) => (
-          <button
-            className={`moment-thumb${index === activeMoment ? " is-active" : ""}`}
-            key={moment.title}
-            onClick={() => setActiveMoment(index)}
-            type="button"
-          >
-            <img src={moment.image} alt={`${moment.title} — ${moment.place}`} />
-            <span>
-              <strong>{moment.title}</strong>
-              {moment.place}
-            </span>
-          </button>
-        ))}
-        </div>
       </div>
     </section>
   );
@@ -541,23 +573,102 @@ function AdminInvitationsPage() {
 }
 
 function InvitationStudio() {
-  const [guests, setGuests] = useState(sampleGuests);
+  const backendEnabled = hasInvitationBackend();
+  const [guests, setGuests] = useState(() =>
+    backendEnabled ? [] : sampleGuests,
+  );
   const [guestForm, setGuestForm] = useState({
     name: "",
     partySize: "2",
     group: "Family",
   });
+  const [adminSecret, setAdminSecret] = useState(
+    () => sessionStorage.getItem("engagement-admin-secret") || "",
+  );
+  const [statusMessage, setStatusMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [responses, setResponses] = useState(() => getStoredResponses());
+  const responseRows = backendEnabled
+    ? guests
+        .filter((guest) => guest.response)
+        .map((guest) => ({
+          guestName: guest.name,
+          attending: guest.response.attending ? "yes" : "no",
+          guestCount: guest.response.guestCount ?? guest.response.guest_count ?? 0,
+          message: guest.response.message || "",
+          submittedAt:
+            guest.response.submittedAt ||
+            guest.response.submitted_at ||
+            "",
+        }))
+    : responses;
 
   useEffect(() => {
+    if (backendEnabled) return undefined;
     const refresh = () => setResponses(getStoredResponses());
     window.addEventListener("storage", refresh);
     return () => window.removeEventListener("storage", refresh);
-  }, []);
+  }, [backendEnabled]);
 
-  function addGuest(event) {
+  useEffect(() => {
+    if (!backendEnabled || !adminSecret) return undefined;
+    let active = true;
+
+    sessionStorage.setItem("engagement-admin-secret", adminSecret);
+    setIsLoading(true);
+    setStatusMessage("Loading invitations...");
+
+    listInvitations(adminSecret)
+      .then((items) => {
+        if (!active) return;
+        setGuests(items.map(normalizeInvitation));
+        setStatusMessage("Backend connected. Invitations are stored in the database.");
+      })
+      .catch((error) => {
+        if (!active) return;
+        setStatusMessage(error.message);
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [adminSecret, backendEnabled]);
+
+  async function addGuest(event) {
     event.preventDefault();
     if (!guestForm.name.trim()) return;
+
+    if (backendEnabled) {
+      if (!adminSecret) {
+        setStatusMessage("Enter the admin secret before creating invite links.");
+        return;
+      }
+
+      setIsLoading(true);
+      setStatusMessage("Creating invite...");
+      try {
+        const invitation = await createInvitation(
+          {
+            name: guestForm.name.trim(),
+            partySize: Number(guestForm.partySize) || 1,
+            group: guestForm.group.trim() || "Guest",
+          },
+          adminSecret,
+        );
+        setGuests((current) => [normalizeInvitation(invitation), ...current]);
+        setGuestForm({ name: "", partySize: "2", group: guestForm.group });
+        setStatusMessage("Invite saved to the database.");
+      } catch (error) {
+        setStatusMessage(error.message);
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+
     setGuests((current) => [
       ...current,
       {
@@ -573,6 +684,7 @@ function InvitationStudio() {
   function copyInvite(guest) {
     const url = `${window.location.origin}${getInvitePath(guest)}`;
     navigator.clipboard?.writeText(url);
+    setStatusMessage(`Copied invite link for ${guest.name}.`);
   }
 
   function downloadCsv() {
@@ -583,7 +695,7 @@ function InvitationStudio() {
       "message",
       "submittedAt",
     ];
-    const rows = responses.map((response) =>
+    const rows = responseRows.map((response) =>
       header
         .map((key) => `"${String(response[key] ?? "").replace(/"/g, '""')}"`)
         .join(","),
@@ -604,10 +716,36 @@ function InvitationStudio() {
         <span className="script">Invitations</span>
         <h2>Make each RSVP personal</h2>
         <p>
-          Generate a private link for every family or friend. Each invite opens
-          to a beautiful page with their name and their own RSVP form.
+          Generate a private database-backed link for every family or friend.
+          Each invite opens with their name and saves their RSVP permanently.
         </p>
       </div>
+
+      {backendEnabled ? (
+        <div className="backend-panel">
+          <label>
+            Admin Secret
+            <input
+              type="password"
+              value={adminSecret}
+              onChange={(event) => setAdminSecret(event.target.value)}
+              placeholder="Enter your backend admin secret"
+            />
+          </label>
+          <p>
+            Backend mode is on. This secret is sent only to your API function,
+            not stored in the site code.
+          </p>
+        </div>
+      ) : (
+        <div className="backend-panel warning">
+          <strong>Prototype mode</strong>
+          <p>
+            No backend URL is configured, so invites and RSVPs are saved only on
+            this browser. Set <code>VITE_INVITATION_API_URL</code> for production.
+          </p>
+        </div>
+      )}
 
       <div className="studio-grid">
         <form className="guest-form" onSubmit={addGuest}>
@@ -652,7 +790,7 @@ function InvitationStudio() {
               placeholder="Friends"
             />
           </label>
-          <button className="primary-button" type="submit">
+          <button className="primary-button" type="submit" disabled={isLoading}>
             <Sparkles size={16} aria-hidden="true" />
             Generate Link
           </button>
@@ -664,7 +802,8 @@ function InvitationStudio() {
               <div>
                 <strong>{guest.name}</strong>
                 <span>
-                  {guest.partySize} invited · {guest.group}
+                  {guest.partySize} invited - {guest.group}
+                  {guest.response ? " - RSVP received" : ""}
                 </span>
               </div>
               <a
@@ -688,14 +827,15 @@ function InvitationStudio() {
 
       <div className="response-bar">
         <span>
-          {responses.length} RSVP response{responses.length === 1 ? "" : "s"} on
-          this device
+          {responseRows.length} RSVP response{responseRows.length === 1 ? "" : "s"}
+          {backendEnabled ? " in the database" : " on this device"}
         </span>
         <button className="secondary-button" onClick={downloadCsv} type="button">
           <Download size={16} aria-hidden="true" />
           Export CSV
         </button>
       </div>
+      {statusMessage ? <p className="status-message">{statusMessage}</p> : null}
     </section>
   );
 }
@@ -706,10 +846,7 @@ function InvitationStudio() {
 
 function FinalSection({ countdown }) {
   return (
-    <section
-      className="final-section"
-      style={{ "--final-image": `url("${engagementConfig.finalImage}")` }}
-    >
+    <section className="final-section">
       <div>
         <p className="eyebrow">With love and gratitude</p>
         <h2>
@@ -724,7 +861,7 @@ function Footer() {
   return (
     <footer className="footer">
       <span className="script">Amrit &amp; Bidhata</span>
-      <p>{engagementConfig.engagementDateLabel} · Made with love</p>
+      <p>{engagementConfig.engagementDateLabel} - Made with love</p>
     </footer>
   );
 }
@@ -733,20 +870,126 @@ function Footer() {
    Invite page
    ============================================================ */
 
+function EventProgram() {
+  const sectionRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return undefined;
+
+    if (!("IntersectionObserver" in window)) {
+      setIsVisible(true);
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setIsVisible(true);
+        observer.disconnect();
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -8%" },
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section
+      className={`event-program${isVisible ? " is-visible" : ""}`}
+      ref={sectionRef}
+      aria-labelledby="event-program-title"
+    >
+      <header className="program-heading">
+        <span className="script" aria-hidden="true">The</span>
+        <h2 id="event-program-title" aria-label="The Program">
+          {Array.from("PROGRAM").map((letter, index) => (
+            <span
+              className="program-letter"
+              style={{ "--letter-index": index }}
+              aria-hidden="true"
+              key={`${letter}-${index}`}
+            >
+              {letter}
+            </span>
+          ))}
+        </h2>
+        <p>{engagementConfig.engagementDateLabel} · The Springs in Katy</p>
+      </header>
+
+      <ol className="program-timeline">
+        {eventProgram.map(({ time, dateTime, title, emoji, Icon }, index) => (
+          <li
+            className={`program-entry ${index % 2 === 0 ? "program-left" : "program-right"}`}
+            style={{ "--event-index": index }}
+            key={dateTime}
+          >
+            <div className="program-copy">
+              <time dateTime={dateTime}>{time}</time>
+              <h3>{title}</h3>
+            </div>
+            <span className="program-marker" aria-hidden="true" />
+            <span className="program-icon" aria-hidden="true">
+              {emoji ? <span className="program-emoji">{emoji}</span> : <Icon strokeWidth={1.35} />}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
 function InvitePage() {
-  const guest = decodeInvite(getInviteToken()) || {
+  const backendEnabled = hasInvitationBackend();
+  const inviteToken = getInviteToken();
+  const decodedGuest = useMemo(() => decodeInvite(inviteToken), [inviteToken]);
+  const fallbackGuest = decodedGuest || {
     name: "Dear Guest",
     partySize: 2,
     group: "Guest",
     id: "preview",
   };
+  const [guest, setGuest] = useState(() =>
+    backendEnabled && inviteToken && !decodedGuest ? null : fallbackGuest,
+  );
+  const [loadError, setLoadError] = useState("");
   const [form, setForm] = useState({
     attending: "yes",
-    guestCount: Number(guest.partySize) || 1,
+    guestCount: Number(fallbackGuest.partySize) || 1,
     message: "",
   });
   const [inviteOpen, setInviteOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (!backendEnabled || !inviteToken) return undefined;
+    let active = true;
+
+    getInvitation(inviteToken)
+      .then((payload) => {
+        if (!active) return;
+        const invitation = normalizeInvitation(payload.invitation);
+        setGuest(invitation);
+        setForm((current) => ({
+          ...current,
+          guestCount: Number(invitation.partySize) || 1,
+        }));
+      })
+      .catch((error) => {
+        if (!active) return;
+        if (decodedGuest) {
+          setGuest(decodedGuest);
+        } else {
+          setLoadError(error.message);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [backendEnabled, decodedGuest, inviteToken]);
 
   useEffect(() => {
     if (!inviteOpen) {
@@ -754,13 +997,15 @@ function InvitePage() {
     } else {
       const timer = window.setTimeout(() => {
         document.body.style.overflow = "";
-      }, 2200);
+      }, 1500);
       return () => window.clearTimeout(timer);
     }
   }, [inviteOpen]);
 
   async function submitRsvp(event) {
     event.preventDefault();
+    if (!guest) return;
+
     const response = {
       inviteId: guest.id,
       guestName: guest.name,
@@ -769,21 +1014,25 @@ function InvitePage() {
       message: form.message.trim(),
       submittedAt: new Date().toISOString(),
     };
+
+    if (backendEnabled && inviteToken && guest.token) {
+      await submitInvitationRsvp(inviteToken, {
+        attending: form.attending === "yes",
+        guestCount: response.guestCount,
+        message: response.message,
+      });
+      setSubmitted(true);
+      return;
+    }
+
     const existing = getStoredResponses().filter(
       (item) => item.inviteId !== response.inviteId,
     );
     setStoredResponses([...existing, response]);
-
-    if (engagementConfig.rsvpEndpoint) {
-      await fetch(engagementConfig.rsvpEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(response),
-      });
-    }
-
     setSubmitted(true);
   }
+
+  const displayGuest = guest || fallbackGuest;
 
   return (
     <>
@@ -791,26 +1040,39 @@ function InvitePage() {
         open={inviteOpen}
         onOpen={() => setInviteOpen(true)}
         mark="An engagement invitation"
-        recipient={guest.name}
+        recipient={displayGuest.name}
       />
       <main className="invite-page">
         <section className="invite-hero">
         <article className="invite-card">
           <img src={engagementConfig.inviteImage} alt="" />
           <div className="invite-overlay">
-            <span className="stamp">Engagement Party Invitation</span>
-            <h1>{engagementConfig.coupleNames}</h1>
-            <span className="for">For {guest.name}</span>
-            <div className="invite-event-details">
-              <strong>{engagementConfig.engagementDateLabel}</strong>
-              <span>{engagementConfig.engagementTimeLabel}</span>
+            <div className="invite-acrylic">
+              <span className="stamp">We&rsquo;re Engaged!</span>
+              <h1>
+                Celebrate
+                <small>with us</small>
+              </h1>
+              <p className="invite-toast">Let&rsquo;s eat, drink &amp; have a good time</p>
+              <strong className="invite-names">{engagementConfig.coupleNames}</strong>
+              <span className="for">Especially for {displayGuest.name}</span>
+              <div className="invite-event-details">
+                <strong>{engagementConfig.engagementDateLabel}</strong>
+                <span>{engagementConfig.engagementTimeLabel} · {engagementConfig.engagementVenue}</span>
+              </div>
             </div>
           </div>
         </article>
 
+        <EventProgram />
+
         <form className="rsvp-card" onSubmit={submitRsvp}>
           <span className="script">A Note for You</span>
-          <h2>{guest.name}</h2>
+          <h2>{displayGuest.name}</h2>
+          {loadError ? <p className="error-message">{loadError}</p> : null}
+          {!guest && !loadError ? (
+            <p className="invite-note">Loading your invitation...</p>
+          ) : null}
           <p className="invite-note">
             With joy and family blessings, you are invited to celebrate Amrit
             and Bidhata&rsquo;s engagement on {engagementConfig.engagementDateLabel}.
@@ -890,13 +1152,17 @@ function InvitePage() {
               placeholder="Share a blessing or message for Amrit and Bidhata..."
             />
           </label>
-          <button className="primary-button" type="submit">
+          <button
+            className="primary-button"
+            type="submit"
+            disabled={!guest || Boolean(loadError)}
+          >
             <Heart size={16} aria-hidden="true" />
             Send RSVP
           </button>
           {submitted ? (
             <p className="success-message">
-              RSVP saved on this device — thank you for replying.
+              RSVP saved. Thank you for replying.
             </p>
           ) : null}
         </form>
