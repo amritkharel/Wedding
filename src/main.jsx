@@ -26,7 +26,16 @@ import {
 } from "./invitationApi.js";
 import "./styles.css";
 
-const asset = (path) => `${import.meta.env.BASE_URL}${path}`;
+const asset = (path) => {
+  const moduleUrl = new URL(import.meta.url);
+  const bundleAssetsIndex = moduleUrl.pathname.lastIndexOf("/assets/");
+  const basePath =
+    bundleAssetsIndex >= 0
+      ? moduleUrl.pathname.slice(0, bundleAssetsIndex + 1)
+      : import.meta.env.BASE_URL;
+
+  return `${moduleUrl.origin}${basePath}${path}`;
+};
 
 const eventProgram = [
   { time: "5:00 PM", dateTime: "17:00", title: "Welcome Hour · Pani Puri & Samosa Chaat", Icon: Utensils },
