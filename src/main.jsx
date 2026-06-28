@@ -1079,13 +1079,6 @@ function EventProgram() {
             </div>
           </li>
           <li>
-            <Gift size={22} strokeWidth={1.5} aria-hidden="true" />
-            <div>
-              <strong>Your presence is our gift</strong>
-              <p>With love, we kindly request no flowers or gifts.</p>
-            </div>
-          </li>
-          <li>
             <Shirt size={22} strokeWidth={1.5} aria-hidden="true" />
             <div>
               <strong>Dress code: Traditional attire</strong>
