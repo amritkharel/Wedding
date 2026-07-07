@@ -75,7 +75,7 @@ const engagementConfig = {
   engagementAddress: "4999 Buller Rd, Pattison, TX 77423",
   engagementMapUrl:
     "https://www.google.com/maps/search/?api=1&query=Stone+Creek+Hall+4999+Buller+Rd+Pattison+TX+77423",
-  inviteImage: asset("assets/couple/garden-walk.jpg"),
+  inviteImage: asset("assets/couple/invite-lotus-lift.jpg"),
   envelopePaper: asset("assets/envelope/floral-envelope.jpg"),
   waxSealImage: asset("assets/envelope/wax-seal-ab.jpg"),
   contactEmail: "amrit.kharel09@gmail.com",
