@@ -1268,8 +1268,10 @@ function InvitePage() {
         <article className="invite-card">
           <img src={engagementConfig.inviteImage} alt="" />
           <div className="invite-overlay">
-            <div className="invite-photo-copy">
+            <div className="invite-photo-copy invite-photo-names">
               <h1>{engagementConfig.coupleNames}</h1>
+            </div>
+            <div className="invite-photo-copy invite-photo-celebration">
               <p>
                 <strong>We&rsquo;re Engaged!!!</strong>
                 <span>Celebrate with us</span>

@@ -1920,13 +1920,13 @@ textarea {
 }
 
 .invite-overlay {
-  align-items: flex-end;
   background:
-    linear-gradient(180deg, transparent 42%, rgba(17, 22, 18, 0.18) 62%, rgba(12, 16, 13, 0.84) 100%);
-  display: flex;
+    linear-gradient(180deg, rgba(8, 14, 10, 0.72) 0%, rgba(8, 14, 10, 0.3) 25%, transparent 48%),
+    linear-gradient(180deg, transparent 44%, rgba(17, 22, 18, 0.18) 64%, rgba(12, 16, 13, 0.84) 100%);
+  display: grid;
   inset: 0;
-  justify-content: center;
   padding: clamp(32px, 6vw, 52px) clamp(26px, 5vw, 44px);
+  place-items: start center;
   position: absolute;
   text-align: center;
   z-index: 2;
@@ -1934,9 +1934,18 @@ textarea {
 
 .invite-photo-copy {
   color: #fff;
-  padding-bottom: clamp(2px, 1vw, 10px);
   position: relative;
   width: 100%;
+}
+
+.invite-photo-names {
+  align-self: start;
+  padding-top: clamp(2px, 1vw, 10px);
+}
+
+.invite-photo-celebration {
+  align-self: end;
+  padding-bottom: clamp(2px, 1vw, 10px);
 }
 
 .invite-photo-copy h1 {
@@ -1946,7 +1955,7 @@ textarea {
   font-style: italic;
   font-weight: 500;
   line-height: 0.95;
-  margin: 0 0 16px;
+  margin: 0;
   text-shadow: 0 3px 18px rgba(0, 0, 0, 0.72);
 }
 
