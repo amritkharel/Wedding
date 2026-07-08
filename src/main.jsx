@@ -28,6 +28,7 @@ import {
   getInvitation,
   hasInvitationBackend,
   listInvitations,
+  submitGenericRsvp,
   submitInvitationRsvp,
 } from "./invitationApi.js";
 import "./styles.css";
@@ -75,7 +76,7 @@ const engagementConfig = {
   engagementAddress: "4999 Buller Rd, Pattison, TX 77423",
   engagementMapUrl:
     "https://www.google.com/maps/search/?api=1&query=Stone+Creek+Hall+4999+Buller+Rd+Pattison+TX+77423",
-  inviteImage: asset("assets/couple/invite-lotus-lift.jpg"),
+  inviteImage: asset("assets/couple/invite-park-kiss.jpg"),
   envelopePaper: asset("assets/envelope/floral-envelope.jpg"),
   waxSealImage: asset("assets/envelope/wax-seal-ab.jpg"),
   contactEmail: "amrit.kharel09@gmail.com",
@@ -219,6 +220,11 @@ function getInviteToken() {
   return params.get("g") || params.get("guest");
 }
 
+function isGenericInvitePath() {
+  const params = new URLSearchParams(window.location.search);
+  return !getInviteToken() || params.get("generic") === "1";
+}
+
 function getBasePath() {
   const path = window.location.pathname.replace(/\/$/, "");
   const routeNames = ["/invite", "/admin-invitations"];
@@ -229,6 +235,10 @@ function getBasePath() {
 
 function getInvitePath(guest) {
   return `${getBasePath()}/invite?g=${guest.token || encodeInvite(guest)}`;
+}
+
+function getGenericInvitePath() {
+  return `${getBasePath()}/invite`;
 }
 
 function normalizeInvitation(invitation) {
@@ -745,6 +755,12 @@ function InvitationStudio() {
     setStatusMessage(`Copied invite link for ${guest.name}.`);
   }
 
+  function copyGenericInvite() {
+    const url = `${window.location.origin}${getGenericInvitePath()}`;
+    navigator.clipboard?.writeText(url);
+    setStatusMessage("Copied the generic invitation link.");
+  }
+
   function downloadCsv() {
     const header = [
       "guestName",
@@ -853,6 +869,22 @@ function InvitationStudio() {
             Generate Link
           </button>
         </form>
+        <aside className="generic-invite-card">
+          <span className="eyebrow">Generic Link</span>
+          <h3>Open RSVP</h3>
+          <p>
+            Send this when you do not want to create a named invitation first.
+            Guests enter their own name and party count before submitting.
+          </p>
+          <div className="generic-link-preview">
+            {window.location.origin}
+            {getGenericInvitePath()}
+          </div>
+          <button className="secondary-button" type="button" onClick={copyGenericInvite}>
+            <Copy size={16} aria-hidden="true" />
+            Copy Generic Link
+          </button>
+        </aside>
       </div>
 
       <section className="invitation-roster" aria-labelledby="invitation-roster-title">
@@ -1094,18 +1126,23 @@ function EventProgram() {
 function InvitePage() {
   const backendEnabled = hasInvitationBackend();
   const inviteToken = getInviteToken();
-  const decodedGuest = useMemo(() => decodeInvite(inviteToken), [inviteToken]);
+  const isGenericInvite = isGenericInvitePath();
+  const decodedGuest = useMemo(
+    () => (isGenericInvite ? null : decodeInvite(inviteToken)),
+    [inviteToken, isGenericInvite],
+  );
   const fallbackGuest = decodedGuest || {
     name: "Dear Guest",
     partySize: 2,
-    group: "Guest",
-    id: "preview",
+    group: isGenericInvite ? "Generic Invitation" : "Guest",
+    id: isGenericInvite ? "generic-preview" : "preview",
   };
   const [guest, setGuest] = useState(() =>
-    backendEnabled && inviteToken && !decodedGuest ? null : fallbackGuest,
+    backendEnabled && inviteToken && !decodedGuest && !isGenericInvite ? null : fallbackGuest,
   );
   const [loadError, setLoadError] = useState("");
   const [form, setForm] = useState({
+    guestName: "",
     attending: "yes",
     guestCount: Number(fallbackGuest.partySize) || 1,
     message: "",
@@ -1117,7 +1154,7 @@ function InvitePage() {
   const homePath = getBasePath() ? `${getBasePath()}/` : "/";
 
   useEffect(() => {
-    if (!backendEnabled || !inviteToken) return undefined;
+    if (!backendEnabled || !inviteToken || isGenericInvite) return undefined;
     let active = true;
 
     getInvitation(inviteToken)
@@ -1142,7 +1179,7 @@ function InvitePage() {
     return () => {
       active = false;
     };
-  }, [backendEnabled, decodedGuest, inviteToken]);
+  }, [backendEnabled, decodedGuest, inviteToken, isGenericInvite]);
 
   useEffect(() => {
     if (!inviteOpen) {
@@ -1159,9 +1196,17 @@ function InvitePage() {
     event.preventDefault();
     if (!guest) return;
 
+    const typedGuestName = form.guestName.trim();
+    const resolvedGuestName = isGenericInvite ? typedGuestName : guest.name;
+
+    if (isGenericInvite && !typedGuestName) {
+      setSubmitError("Please enter your name so we know who is responding.");
+      return;
+    }
+
     const response = {
       inviteId: guest.id,
-      guestName: guest.name,
+      guestName: resolvedGuestName,
       attending: form.attending,
       guestCount: form.attending === "yes" ? Number(form.guestCount) : 0,
       message: form.message.trim(),
@@ -1172,7 +1217,14 @@ function InvitePage() {
     setSubmitError("");
 
     try {
-      if (backendEnabled && inviteToken && guest.token) {
+      if (backendEnabled && isGenericInvite) {
+        await submitGenericRsvp({
+          guestName: resolvedGuestName,
+          attending: form.attending === "yes",
+          guestCount: response.guestCount,
+          message: response.message,
+        });
+      } else if (backendEnabled && inviteToken && guest.token) {
         await submitInvitationRsvp(inviteToken, {
           attending: form.attending === "yes",
           guestCount: response.guestCount,
@@ -1182,7 +1234,15 @@ function InvitePage() {
         const existing = getStoredResponses().filter(
           (item) => item.inviteId !== response.inviteId,
         );
-        setStoredResponses([...existing, response]);
+        setStoredResponses([
+          ...existing,
+          {
+            ...response,
+            inviteId: isGenericInvite
+              ? `${resolvedGuestName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`
+              : response.inviteId,
+          },
+        ]);
       }
 
       setSubmitted(true);
@@ -1230,6 +1290,26 @@ function InvitePage() {
           {loadError ? <p className="error-message">{loadError}</p> : null}
           {!guest && !loadError ? (
             <p className="invite-note">Loading your invitation...</p>
+          ) : null}
+          {isGenericInvite ? (
+            <div className="generic-guest-fields">
+              <label>
+                Your Name
+                <input
+                  autoComplete="name"
+                  value={form.guestName}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      guestName: event.target.value,
+                    }))
+                  }
+                  placeholder="Enter your name"
+                  required
+                />
+              </label>
+              <p>We&rsquo;ll add your RSVP to Amrit and Bidhata&rsquo;s guest list.</p>
+            </div>
           ) : null}
           <a
             className="venue-line"

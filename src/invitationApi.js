@@ -58,3 +58,10 @@ export async function submitInvitationRsvp(token, response) {
     body: response,
   });
 }
+
+export async function submitGenericRsvp(response) {
+  return apiRequest("/rsvp/generic", {
+    method: "POST",
+    body: response,
+  });
+}
