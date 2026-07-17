@@ -599,6 +599,10 @@ function InvitationStudio() {
   const [statusMessage, setStatusMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [responses, setResponses] = useState(() => getStoredResponses());
+  const [sortConfig, setSortConfig] = useState({
+    key: "name",
+    direction: "asc",
+  });
   const rosterGuests = useMemo(() => {
     const localResponses = new Map(
       responses.map((response) => [
@@ -607,8 +611,7 @@ function InvitationStudio() {
       ]),
     );
 
-    return guests
-      .map((guest) => {
+    return guests.map((guest) => {
         if (backendEnabled || guest.response) return guest;
         const response = localResponses.get(guest.name.trim().toLocaleLowerCase());
         if (!response) return guest;
@@ -622,14 +625,59 @@ function InvitationStudio() {
             submittedAt: response.submittedAt || "",
           },
         };
-      })
-      .sort((left, right) =>
-        left.name.localeCompare(right.name, undefined, {
+      });
+  }, [backendEnabled, guests, responses]);
+  const sortedRosterGuests = useMemo(() => {
+    const statusRank = { accepted: 0, declined: 1, pending: 2 };
+    const statusForGuest = (guest) => {
+      if (!guest.response) return "pending";
+      return guest.response.attending ? "accepted" : "declined";
+    };
+    const valueForGuest = (guest, key) => {
+      switch (key) {
+        case "name":
+          return guest.name || "";
+        case "invited":
+          return Number(guest.partySize) || 0;
+        case "group":
+          return guest.group || "";
+        case "status":
+          return statusRank[statusForGuest(guest)];
+        case "attending":
+          return guest.response?.attending ? Number(guest.response.guestCount) || 0 : 0;
+        case "comment":
+          return guest.response?.message || "";
+        case "submitted":
+          return guest.response?.submittedAt || guest.response?.submitted_at || "";
+        default:
+          return guest.name || "";
+      }
+    };
+
+    return [...rosterGuests].sort((left, right) => {
+      const leftValue = valueForGuest(left, sortConfig.key);
+      const rightValue = valueForGuest(right, sortConfig.key);
+      let comparison = 0;
+
+      if (typeof leftValue === "number" && typeof rightValue === "number") {
+        comparison = leftValue - rightValue;
+      } else {
+        comparison = String(leftValue).localeCompare(String(rightValue), undefined, {
           numeric: true,
           sensitivity: "base",
-        }),
-      );
-  }, [backendEnabled, guests, responses]);
+        });
+      }
+
+      if (comparison === 0) {
+        comparison = String(left.name || "").localeCompare(String(right.name || ""), undefined, {
+          numeric: true,
+          sensitivity: "base",
+        });
+      }
+
+      return sortConfig.direction === "asc" ? comparison : -comparison;
+    });
+  }, [rosterGuests, sortConfig]);
   const attendanceSummary = useMemo(
     () =>
       rosterGuests.reduce(
@@ -759,6 +807,29 @@ function InvitationStudio() {
     const url = `${window.location.origin}${getGenericInvitePath()}`;
     navigator.clipboard?.writeText(url);
     setStatusMessage("Copied the generic invitation link.");
+  }
+
+  function updateSort(key) {
+    setSortConfig((current) => ({
+      key,
+      direction:
+        current.key === key && current.direction === "asc" ? "desc" : "asc",
+    }));
+  }
+
+  function sortLabel(key) {
+    if (sortConfig.key !== key) return "Sort";
+    return sortConfig.direction === "asc" ? "Ascending" : "Descending";
+  }
+
+  function formatSubmittedAt(value) {
+    if (!value) return "Not submitted";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "Submitted";
+    return date.toLocaleString(undefined, {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
   }
 
   function downloadCsv() {
@@ -892,7 +963,7 @@ function InvitationStudio() {
           <div>
             <span className="eyebrow">Guest List</span>
             <h3 id="invitation-roster-title">Invitations</h3>
-            <p>Sorted alphabetically by guest name.</p>
+            <p>Click a column heading to sort the list.</p>
           </div>
           <div className="roster-summary">
             <div className="attendance-total" aria-label={`${attendanceSummary.attending} people attending out of ${attendanceSummary.invited} invited`}>
@@ -923,45 +994,97 @@ function InvitationStudio() {
           <span><strong>{attendanceSummary.awaiting}</strong> awaiting RSVP</span>
         </div>
 
-        <div className="guest-links roster-list">
-          {rosterGuests.map((guest) => {
+        <div className="guest-links roster-list" role="table" aria-label="Invitation RSVP list">
+          <div className="guest-row roster-row-header" role="row">
+            {[
+              ["name", "Guest"],
+              ["invited", "Invited"],
+              ["group", "Group"],
+              ["status", "RSVP"],
+              ["attending", "Attending"],
+              ["comment", "Comment"],
+              ["submitted", "Submitted"],
+            ].map(([key, label]) => (
+              <button
+                className={`sort-heading${sortConfig.key === key ? " is-active" : ""}`}
+                type="button"
+                onClick={() => updateSort(key)}
+                aria-sort={
+                  sortConfig.key === key
+                    ? sortConfig.direction === "asc"
+                      ? "ascending"
+                      : "descending"
+                    : "none"
+                }
+                key={key}
+              >
+                {label}
+                <span aria-hidden="true">
+                  {sortConfig.key === key
+                    ? sortConfig.direction === "asc"
+                      ? "↑"
+                      : "↓"
+                    : "↕"}
+                </span>
+                <small>{sortLabel(key)}</small>
+              </button>
+            ))}
+            <span className="sort-heading static-heading">Actions</span>
+          </div>
+          {sortedRosterGuests.map((guest) => {
             const rsvpState = guest.response
               ? guest.response.attending
                 ? "accepted"
                 : "declined"
               : "pending";
+            const statusLabel = rsvpState === "accepted"
+              ? "Accepted"
+              : rsvpState === "declined"
+                ? "Declined"
+                : "Awaiting RSVP";
             const RsvpIcon = rsvpState === "accepted"
               ? CheckCircle2
               : rsvpState === "declined"
                 ? XCircle
                 : Clock;
+            const rsvpMessage = guest.response?.message?.trim();
+            const submittedAt =
+              guest.response?.submittedAt ||
+              guest.response?.submitted_at ||
+              "";
 
             return (
-            <div className="guest-row" key={guest.id || guest.token || `${guest.name}-${guest.group}`}>
-              <div className="guest-identity">
+            <div className="guest-row" role="row" key={guest.id || guest.token || `${guest.name}-${guest.group}`}>
+              <div className="guest-identity" role="cell" data-label="Guest">
                 <strong>{guest.name}</strong>
-                <span>
-                  {guest.partySize} invited · {guest.group}
-                </span>
+                <span>{guest.token ? "Personal link" : "Local invite"}</span>
               </div>
-              <div className={`rsvp-status ${rsvpState}`}>
+              <div className="guest-count-cell" role="cell" data-label="Invited">
+                {Number(guest.partySize) || 0}
+              </div>
+              <div className="guest-group-cell" role="cell" data-label="Group">
+                {guest.group}
+              </div>
+              <div className={`rsvp-status ${rsvpState}`} role="cell" data-label="RSVP">
                 <RsvpIcon size={18} aria-hidden="true" />
                 <span>
-                  <strong>
-                    {rsvpState === "accepted"
-                      ? "Accepted"
-                      : rsvpState === "declined"
-                        ? "Declined"
-                        : "Awaiting RSVP"}
-                  </strong>
-                  {rsvpState === "accepted" ? (
-                    <small>{Number(guest.response.guestCount) || 0} attending</small>
-                  ) : rsvpState === "declined" ? (
-                    <small>Response received</small>
-                  ) : null}
+                  <strong>{statusLabel}</strong>
                 </span>
               </div>
-              <div className="guest-actions">
+              <div className="guest-count-cell" role="cell" data-label="Attending">
+                {rsvpState === "accepted" ? Number(guest.response.guestCount) || 0 : 0}
+              </div>
+              <div className="guest-comment-cell" role="cell" data-label="Comment">
+                {rsvpMessage ? (
+                  <p>{rsvpMessage}</p>
+                ) : (
+                  <span>No comment</span>
+                )}
+              </div>
+              <div className="guest-submitted-cell" role="cell" data-label="Submitted">
+                {formatSubmittedAt(submittedAt)}
+              </div>
+              <div className="guest-actions" role="cell" data-label="Actions">
                 <a
                   href={getInvitePath(guest)}
                   className="secondary-link"
@@ -980,7 +1103,7 @@ function InvitationStudio() {
             </div>
             );
           })}
-          {rosterGuests.length === 0 ? (
+          {sortedRosterGuests.length === 0 ? (
             <p className="empty-roster">No invitations yet. Generate the first one above.</p>
           ) : null}
         </div>

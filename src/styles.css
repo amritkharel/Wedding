@@ -1711,19 +1711,88 @@ textarea {
 
 .roster-list {
   margin-top: 18px;
+  overflow-x: auto;
 }
 
 .guest-row {
   align-items: center;
   border-bottom: 1px solid rgba(184, 137, 58, 0.14);
   display: grid;
-  gap: 12px;
-  grid-template-columns: minmax(0, 1fr) minmax(150px, auto) auto;
-  padding: 18px 22px;
+  gap: 14px;
+  grid-template-columns:
+    minmax(180px, 1.1fr)
+    minmax(72px, 0.42fr)
+    minmax(130px, 0.7fr)
+    minmax(140px, 0.72fr)
+    minmax(90px, 0.48fr)
+    minmax(220px, 1.35fr)
+    minmax(150px, 0.8fr)
+    minmax(168px, auto);
+  min-width: 1120px;
+  padding: 16px 18px;
 }
 
 .guest-row:last-child {
   border-bottom: 0;
+}
+
+.roster-row-header {
+  background: rgba(255, 250, 240, 0.78);
+  border-bottom-color: rgba(184, 137, 58, 0.28);
+  padding-bottom: 12px;
+  padding-top: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.sort-heading {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  flex-wrap: wrap;
+  font-family: var(--font-sans);
+  font-size: 0.66rem;
+  font-weight: 800;
+  gap: 5px;
+  justify-content: flex-start;
+  letter-spacing: 0.14em;
+  min-height: 34px;
+  padding: 0;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.sort-heading span {
+  color: var(--gold);
+  font-size: 0.82rem;
+  letter-spacing: 0;
+}
+
+.sort-heading small {
+  color: transparent;
+  flex-basis: 100%;
+  font-size: 0.58rem;
+  font-weight: 700;
+  height: 0;
+  letter-spacing: 0.08em;
+  overflow: hidden;
+}
+
+.sort-heading.is-active {
+  color: var(--ink);
+}
+
+.sort-heading.is-active small {
+  color: var(--gold);
+  height: auto;
+}
+
+.static-heading {
+  cursor: default;
 }
 
 .guest-identity > strong {
@@ -1738,9 +1807,45 @@ textarea {
   display: block;
   font-size: 0.74rem;
   font-weight: 500;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.1em;
   margin-top: 4px;
   text-transform: uppercase;
+}
+
+.guest-count-cell,
+.guest-group-cell,
+.guest-submitted-cell {
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.guest-count-cell {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.guest-comment-cell p,
+.guest-comment-cell span {
+  color: var(--ink-soft);
+  display: -webkit-box;
+  font-family: var(--font-serif);
+  font-size: 0.94rem;
+  font-style: italic;
+  line-height: 1.45;
+  margin: 0;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.guest-comment-cell span {
+  color: var(--muted);
+}
+
+.guest-submitted-cell {
+  color: var(--muted);
+  font-size: 0.78rem;
 }
 
 .rsvp-status {
@@ -2549,8 +2654,33 @@ textarea {
 
   .guest-row {
     align-items: stretch;
+    gap: 10px;
     grid-template-columns: 1fr;
+    min-width: 0;
     padding: 20px;
+  }
+
+  .roster-row-header {
+    display: none;
+  }
+
+  .guest-row > [data-label] {
+    display: grid;
+    gap: 4px;
+  }
+
+  .guest-row > [data-label]::before {
+    color: var(--muted);
+    content: attr(data-label);
+    font-size: 0.64rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .guest-row .rsvp-status,
+  .guest-row .guest-actions {
+    display: flex;
   }
 
   .roster-header {
