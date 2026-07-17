@@ -1825,8 +1825,8 @@ textarea {
   font-weight: 700;
 }
 
-.guest-comment-cell p,
-.guest-comment-cell span {
+.guest-comment-cell > span,
+.comment-toggle span {
   color: var(--ink-soft);
   display: -webkit-box;
   font-family: var(--font-serif);
@@ -1839,8 +1839,43 @@ textarea {
   overflow: hidden;
 }
 
-.guest-comment-cell span {
+.guest-comment-cell > span {
   color: var(--muted);
+}
+
+.comment-toggle {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  display: grid;
+  gap: 7px;
+  padding: 0;
+  text-align: left;
+  width: 100%;
+}
+
+.comment-toggle:hover span,
+.comment-toggle:focus-visible span {
+  color: var(--ink);
+}
+
+.comment-toggle:focus-visible {
+  outline: 2px solid rgba(184, 137, 58, 0.45);
+  outline-offset: 4px;
+}
+
+.comment-toggle small {
+  color: var(--gold);
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.comment-toggle.is-expanded span {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset;
 }
 
 .guest-submitted-cell {

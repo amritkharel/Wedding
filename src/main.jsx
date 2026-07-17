@@ -603,6 +603,7 @@ function InvitationStudio() {
     key: "name",
     direction: "asc",
   });
+  const [expandedComments, setExpandedComments] = useState(() => new Set());
   const rosterGuests = useMemo(() => {
     const localResponses = new Map(
       responses.map((response) => [
@@ -832,6 +833,18 @@ function InvitationStudio() {
     });
   }
 
+  function toggleComment(key) {
+    setExpandedComments((current) => {
+      const next = new Set(current);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+  }
+
   function downloadCsv() {
     const header = [
       "guestName",
@@ -1052,9 +1065,11 @@ function InvitationStudio() {
               guest.response?.submittedAt ||
               guest.response?.submitted_at ||
               "";
+            const guestKey = guest.id || guest.token || `${guest.name}-${guest.group}`;
+            const commentExpanded = expandedComments.has(guestKey);
 
             return (
-            <div className="guest-row" role="row" key={guest.id || guest.token || `${guest.name}-${guest.group}`}>
+            <div className={`guest-row${commentExpanded ? " has-expanded-comment" : ""}`} role="row" key={guestKey}>
               <div className="guest-identity" role="cell" data-label="Guest">
                 <strong>{guest.name}</strong>
                 <span>{guest.token ? "Personal link" : "Local invite"}</span>
@@ -1076,7 +1091,16 @@ function InvitationStudio() {
               </div>
               <div className="guest-comment-cell" role="cell" data-label="Comment">
                 {rsvpMessage ? (
-                  <p>{rsvpMessage}</p>
+                  <button
+                    className={`comment-toggle${commentExpanded ? " is-expanded" : ""}`}
+                    type="button"
+                    onClick={() => toggleComment(guestKey)}
+                    aria-expanded={commentExpanded}
+                    aria-label={`${commentExpanded ? "Collapse" : "Expand"} RSVP comment from ${guest.name}`}
+                  >
+                    <span>{rsvpMessage}</span>
+                    <small>{commentExpanded ? "Show less" : "Read full"}</small>
+                  </button>
                 ) : (
                   <span>No comment</span>
                 )}
